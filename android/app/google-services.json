@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943018320260",
+    "project_id": "julekonkurrencer-5eb62",
+    "storage_bucket": "julekonkurrencer-5eb62.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943018320260:android:c030084f832de8d9c87dd1",
+        "android_client_info": {
+          "package_name": "com.hartvigsolutions.julekonkurrencer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHBgoZEiNn5gwZrnLqNeYVhirfvCU5rmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
