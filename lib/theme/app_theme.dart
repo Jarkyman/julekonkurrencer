@@ -13,16 +13,13 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    const colorScheme = ColorScheme(
-      brightness: Brightness.light,
+    final colorScheme = ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: Colors.white,
       secondary: AppColors.selection,
       onSecondary: AppColors.text,
       surface: AppColors.surface,
       onSurface: AppColors.text,
-      background: AppColors.surface,
-      onBackground: AppColors.text,
       error: Colors.red,
       onError: Colors.white,
     );

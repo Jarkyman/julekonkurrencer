@@ -85,7 +85,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<CalendarType>(
-                value: _type,
+                initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: CalendarType.values
                     .map(
@@ -301,7 +301,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
               onTap: () => Navigator.of(context).pop(app),
             );
           },
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (context, _) => const Divider(height: 1),
           itemCount: apps.length,
         );
       },

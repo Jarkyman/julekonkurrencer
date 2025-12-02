@@ -50,6 +50,7 @@ class CalendarLauncher {
 
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
+    if (!context.mounted) return;
     if (!launched) {
       _showSnack(context, 'Kunne ikke åbne linket.');
     }
@@ -71,6 +72,7 @@ class CalendarLauncher {
 
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
+    if (!context.mounted) return;
     if (!launched) {
       _showSnack(context, 'Kunne ikke åbne app eller butik.');
     }

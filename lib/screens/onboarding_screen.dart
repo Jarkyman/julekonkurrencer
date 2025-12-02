@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/advent_calendar_entry.dart';
 import '../theme/app_theme.dart';
 import '../theme/responsive.dart';
+import '../widgets/predefined_card.dart';
+import '../widgets/primary_button.dart';
 
 class OnboardingResult {
   OnboardingResult({
@@ -79,7 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               child: Text(
                 'Velkommen til JuleKonkurrencer',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.text.withOpacity(0.7),
+                      color: AppColors.text.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w600,
                     ),
               ),
@@ -123,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             textAlign: TextAlign.center,
           ),
           const Spacer(),
-          _primaryButton(label: 'Kom i gang', onPressed: _nextPage),
+          PrimaryButton(label: 'Kom i gang', onPressed: _nextPage),
         ],
       ),
     );
@@ -163,7 +165,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               itemBuilder: (context, index) {
                 final entry = entries[index];
                 final selected = _selected.contains(entry.id);
-                return _PredefinedCard(
+                return PredefinedCard(
                   entry: entry,
                   selected: selected,
                   onTap: () => setState(() {
@@ -177,7 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               },
             ),
           ),
-          _primaryButton(label: 'Fortsæt', onPressed: _nextPage),
+          PrimaryButton(label: 'Fortsæt', onPressed: _nextPage),
         ],
       ),
     );
@@ -205,7 +207,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           const SizedBox(height: 24),
           _timePickerCard(),
           const Spacer(),
-          _primaryButton(label: 'Færdig', onPressed: _finish),
+          PrimaryButton(label: 'Færdig', onPressed: _finish),
         ],
       ),
     );
@@ -214,8 +216,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget _timePickerCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.selection.withOpacity(
-          _notificationsAllowed ? 0.4 : 0.25,
+        color: AppColors.selection.withValues(
+          alpha: _notificationsAllowed ? 0.4 : 0.25,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.selection),
@@ -256,25 +258,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _primaryButton({
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        onPressed: onPressed,
-        child: Text(label),
       ),
     );
   }
@@ -371,105 +354,5 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void _stopPolling() {
     _pollTimer?.cancel();
     _pollTimer = null;
-  }
-}
-
-class _PredefinedCard extends StatelessWidget {
-  const _PredefinedCard({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final AdventCalendarEntry entry;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderColor = selected ? AppColors.primary : AppColors.selection;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? AppColors.selection : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x11000000),
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _LogoOrIcon(entry: entry, selected: selected),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                entry.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LogoOrIcon extends StatelessWidget {
-  const _LogoOrIcon({required this.entry, required this.selected});
-
-  final AdventCalendarEntry entry;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasLogo = (entry.logo ?? '').isNotEmpty;
-    final border = Border.all(
-      color: selected ? AppColors.primary : AppColors.selection,
-    );
-    return Container(
-      width: 72,
-      height: 72,
-      decoration: BoxDecoration(
-        color: AppColors.selection,
-        borderRadius: BorderRadius.circular(16),
-        border: border,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: hasLogo
-          ? Image.network(
-              entry.logo!,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _fallbackIcon(),
-            )
-          : _fallbackIcon(),
-    );
-  }
-
-  Widget _fallbackIcon() {
-    return Icon(_icon(entry.type), color: AppColors.primary, size: 32);
-  }
-
-  IconData _icon(CalendarType type) {
-    switch (type) {
-      case CalendarType.website:
-        return Icons.public;
-      case CalendarType.app:
-        return Icons.phone_iphone;
-      case CalendarType.physical:
-        return Icons.store_mall_directory;
-      case CalendarType.email:
-        return Icons.mail_outline;
-    }
   }
 }

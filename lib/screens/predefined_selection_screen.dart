@@ -138,10 +138,10 @@ class _PredefinedTile extends StatelessWidget {
     final borderColor =
         selected ? Theme.of(context).colorScheme.primary : Colors.black12;
     final overlayColor = disabled
-        ? Colors.black.withOpacity(0.3)
+        ? Colors.black.withValues(alpha: 0.3)
         : selected
-        ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-        : Colors.transparent;
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+            : Colors.transparent;
 
     return GestureDetector(
       onTap: onTap,
@@ -265,7 +265,7 @@ class _LogoImage extends StatelessWidget {
     return Image.network(
       url!,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _fallback(),
+      errorBuilder: (context, error, stackTrace) => _fallback(),
       loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
         return const Center(

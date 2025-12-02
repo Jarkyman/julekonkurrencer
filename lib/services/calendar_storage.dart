@@ -8,6 +8,7 @@ class CalendarStorage {
   static const _storageKey = 'calendar_entries';
   static const _predefinedSeenKey = 'predefined_seen';
   static const _onboardingSeenKey = 'onboarding_seen';
+  static const _manualOrderKey = 'manual_order_enabled';
 
   Future<List<AdventCalendarEntry>> loadEntries() async {
     final prefs = await SharedPreferences.getInstance();
@@ -36,6 +37,16 @@ class CalendarStorage {
       entries.map((entry) => entry.toJson()).toList(growable: false),
     );
     await prefs.setString(_storageKey, payload);
+  }
+
+  Future<bool> manualOrderEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_manualOrderKey) ?? false;
+  }
+
+  Future<void> setManualOrderEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_manualOrderKey, enabled);
   }
 
   Future<bool> hasSeenPredefinedPrompt() async {
