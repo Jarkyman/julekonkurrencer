@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone_plus/flutter_timezone_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -72,6 +73,10 @@ class ReminderService {
         await androidImpl?.requestNotificationsPermission() ?? true;
 
     return iosGranted && macGranted && androidGranted;
+  }
+
+  Future<void> openSettings() async {
+    await openAppSettings();
   }
 
   Future<void> enableDailyReminders(TimeOfDay time) async {

@@ -9,6 +9,7 @@ import 'predefined_selection_screen.dart';
 import '../services/predefined_calendar_loader.dart';
 import '../services/reminder_service.dart';
 import '../services/done_today_service.dart';
+import 'onboarding_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.analytics});
@@ -46,26 +47,28 @@ class _HomeScreenState extends State<HomeScreen> {
       final isDone = await _doneToday.isDone(entry.id);
       updated.add(entry.copyWith(doneToday: isDone));
     }
-    final hasSeenPredefined = await _storage.hasSeenPredefinedPrompt();
+    final hasSeenOnboarding = await _storage.hasSeenOnboarding();
     final predefined =
-        hasSeenPredefined ? <AdventCalendarEntry>[] : await _predefinedLoader.load();
+        hasSeenOnboarding ? <AdventCalendarEntry>[] : await _predefinedLoader.load();
 
     if (!mounted) return;
 
     setState(() {
-      _entries = _sorted(entries);
+      _entries = _sorted(updated);
       _loading = false;
     });
 
-    if (!hasSeenPredefined) {
+    if (!hasSeenOnboarding) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showPredefinedSelection(predefined);
+        _startOnboarding(predefined);
       });
     }
   }
 
   Future<void> _initReminders() async {
     await _reminders.init();
+    final seenOnboarding = await _storage.hasSeenOnboarding();
+    if (!seenOnboarding) return;
     _reminderTime = await _reminders.currentReminderTime(_defaultReminderTime);
     final enabled = await _reminders.isEnabled();
     if (enabled) {
@@ -75,13 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       return;
     }
-
-    final shouldShow = await _reminders.shouldShowOnboarding();
-    if (!shouldShow || !mounted) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showReminderPrompt();
-    });
   }
 
   List<AdventCalendarEntry> _sorted(List<AdventCalendarEntry> entries) {
@@ -98,6 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
   List<AdventCalendarEntry> _filtered(List<AdventCalendarEntry> entries) {
     if (_filter == null) return entries;
     return entries.where((entry) => entry.type == _filter).toList();
+  }
+
+  List<AdventCalendarEntry> _grouped(List<AdventCalendarEntry> entries) {
+    final sorted = _sorted(entries);
+    final notDone = sorted.where((e) => !e.doneToday).toList();
+    final done = sorted.where((e) => e.doneToday).toList();
+    return [...notDone, ...done];
   }
 
   Future<void> _persist() async {
@@ -153,6 +156,66 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (newOnes.isNotEmpty) {
       await _persist();
+    }
+  }
+
+  Future<void> _startOnboarding(List<AdventCalendarEntry> predefined) async {
+    await _storage.markOnboardingSeen();
+    await _storage.markPredefinedPromptSeen();
+    if (!mounted) return;
+
+    await widget.analytics.logViewPredefinedList();
+
+    final result = await Navigator.of(context).push<OnboardingResult>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => OnboardingScreen(
+          predefined: predefined,
+          onOpenSettings: _reminders.openSettings,
+          onRequestPermission: _reminders.requestPermission,
+        ),
+      ),
+    );
+
+    if (result == null) return;
+
+    final now = DateTime.now();
+    final newEntries = <AdventCalendarEntry>[];
+    setState(() {
+      for (final entry in result.selectedPredefined) {
+        final exists = _entries.any((e) => e.id == entry.id);
+        if (exists) continue;
+        final copy = entry.copyWith(
+          isPredefined: true,
+          updatedAt: now,
+        );
+        newEntries.add(copy);
+        _entries.add(copy);
+      }
+      _entries = _sorted(_entries);
+    });
+
+    for (final entry in newEntries) {
+      await widget.analytics.logAddPredefinedCalendar(entry);
+    }
+    if (newEntries.isNotEmpty) {
+      await _persist();
+    }
+
+    if (result.notificationsEnabled && result.reminderTime != null) {
+      final granted = await _reminders.requestPermission();
+      if (granted) {
+        _reminderTime = result.reminderTime!;
+        await _reminders.enableDailyReminders(_reminderTime);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Tillad notifikationer i Indstillinger for at få daglige påmindelser.',
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -244,7 +307,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final visibleEntries = _filtered(_entries);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('JuleKonkurrencer')),
+      drawer: _buildDrawer(),
+      appBar: AppBar(
+        title: const Text('Mine kalendere'),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _entries.isEmpty
@@ -252,85 +324,50 @@ class _HomeScreenState extends State<HomeScreen> {
           : Column(
               children: [
                 _buildFilters(),
-                if (visibleEntries.isEmpty)
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Ingen kalendere matcher filteret.',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.only(bottom: 96),
-                      itemBuilder: (context, index) {
-                        final entry = visibleEntries[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            child: Icon(
-                              entry.doneToday
-                                  ? Icons.check_circle
-                                  : _iconForType(entry.type),
-                            ),
-                          ),
-                          title: Text(entry.name),
-                          subtitle: Text(_secondaryText(entry)),
-                          onTap: () => _openEntry(entry),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                tooltip: entry.isFavorite
-                                    ? 'Fjern favorit'
-                                    : 'Markér som favorit',
-                                icon: Icon(
-                                  entry.isFavorite
-                                      ? Icons.star
-                                      : Icons.star_border_outlined,
-                                ),
-                                onPressed: () => _toggleFavorite(entry),
-                              ),
-                              PopupMenuButton<String>(
-                                onSelected: (value) {
-                                  switch (value) {
-                                    case 'edit':
-                                      _openEditor(entry: entry);
-                                      break;
-                                    case 'delete':
-                                      _deleteEntry(entry);
-                                      break;
-                                  }
-                                },
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Rediger'),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text('Slet'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemCount: visibleEntries.length,
-                    ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: _buildListCard(visibleEntries),
                   ),
+                ),
               ],
             ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: _openEditor,
-        icon: const Icon(Icons.add),
-        label: const Text('Tilføj kalender'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ListTile(
+              title: Text(
+                'Indstillinger',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Påmindelser'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _reminders.openSettings();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Om appen'),
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -423,6 +460,170 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Widget _buildListCard(List<AdventCalendarEntry> visibleEntries) {
+    final items = _grouped(visibleEntries);
+    if (items.isEmpty) {
+      return Center(
+        child: Text(
+          'Ingen kalendere matcher filteret.',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(color: Color(0x15000000), blurRadius: 12, offset: Offset(0, 4)),
+        ],
+      ),
+      child: _buildSectionedList(items),
+    );
+  }
+
+  Widget _buildSectionedList(List<AdventCalendarEntry> items) {
+    final doneToday = items.where((e) => e.doneToday).toList();
+    final notDone = items.where((e) => !e.doneToday).toList();
+    final sections = <_Section>[
+      if (notDone.isNotEmpty) _Section(label: 'I dag', entries: notDone),
+      if (doneToday.isNotEmpty) _Section(label: 'Færdige i dag', entries: doneToday),
+    ];
+
+    final flattened = <_SectionEntry>[];
+    for (final section in sections) {
+      flattened.add(_SectionEntry.header(section.label));
+      flattened.addAll(section.entries.map(_SectionEntry.item));
+    }
+
+    return ReorderableListView.builder(
+      buildDefaultDragHandles: false,
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
+      itemCount: flattened.length,
+      onReorder: (oldIndex, newIndex) {
+        // Prevent moving headers.
+        final from = flattened[oldIndex];
+        if (from.isHeader) return;
+        if (flattened[newIndex.clamp(0, flattened.length - 1)].isHeader) return;
+        if (oldIndex < newIndex) newIndex -= 1;
+
+        final item = from.entry!;
+        setState(() {
+          _entries = _sorted(_entries);
+          final current = List<AdventCalendarEntry>.from(_entries);
+          current.removeWhere((e) => e.id == item.id);
+          current.insert(newIndex ~/ 2, item); // approximate insert position
+          _entries = _sorted(current);
+        });
+        _persist();
+      },
+      itemBuilder: (context, index) {
+        final entry = flattened[index];
+        if (entry.isHeader) {
+          return Container(
+            key: ValueKey('header-${entry.label}'),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              entry.label!,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+          );
+        }
+
+        final cal = entry.entry!;
+        return Dismissible(
+          key: ValueKey(cal.id),
+          background: _swipeBackground(
+            alignment: Alignment.centerLeft,
+            icon: Icons.edit,
+            color: Colors.blueGrey.shade100,
+          ),
+          secondaryBackground: _swipeBackground(
+            alignment: Alignment.centerRight,
+            icon: Icons.delete,
+            color: Colors.red.shade100,
+          ),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.startToEnd) {
+              _openEditor(entry: cal);
+              return false;
+            } else {
+              await _deleteEntry(cal);
+              return false;
+            }
+          },
+          child: ReorderableDelayedDragStartListener(
+            index: index,
+            child: ListTile(
+              onTap: () => _openEntry(cal),
+              leading: _leadingIcon(cal),
+              title: Text(
+                cal.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  decoration: cal.doneToday
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                ),
+              ),
+              subtitle: Text(
+                _secondaryText(cal),
+                style: TextStyle(
+                  color: Colors.black54,
+                  decoration: cal.doneToday
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                ),
+              ),
+              trailing: IconButton(
+                tooltip: cal.isFavorite ? 'Fjern favorit' : 'Markér som favorit',
+                icon: Icon(
+                  cal.isFavorite ? Icons.star : Icons.star_border_outlined,
+                  color: cal.isFavorite
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.black54,
+                ),
+                onPressed: () => _toggleFavorite(cal),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _leadingIcon(AdventCalendarEntry entry) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        entry.doneToday ? Icons.check_circle : _iconForType(entry.type),
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget _swipeBackground({
+    required Alignment alignment,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      alignment: alignment,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      color: color,
+      child: Icon(icon, color: Colors.black54),
+    );
+  }
+
   String _secondaryText(AdventCalendarEntry entry) {
     switch (entry.type) {
       case CalendarType.website:
@@ -449,81 +650,24 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _showReminderPrompt() async {
-    final newTime = await _pickReminderTime(context, _reminderTime);
-    if (newTime == null) {
-      await _reminders.markOnboardingShown();
-      return;
-    }
+}
 
-    _reminderTime = newTime;
+class _Section {
+  _Section({required this.label, required this.entries});
+  final String label;
+  final List<AdventCalendarEntry> entries;
+}
 
-    final accepted = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Daglig påmindelse?'),
-          content: const Text(
-            'Vil du have en daglig påmindelse i december om at åbne dine julekalendere?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Ikke nu'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Ja tak'),
-            ),
-          ],
-        );
-      },
-    );
+class _SectionEntry {
+  _SectionEntry.header(this.label)
+      : entry = null,
+        isHeader = true;
 
-    await _reminders.markOnboardingShown();
+  _SectionEntry.item(this.entry)
+      : label = null,
+        isHeader = false;
 
-    if (accepted != true) {
-      return;
-    }
-
-    final granted = await _reminders.requestPermission();
-    if (!granted && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tilladelse afvist. Aktivér notifikationer i indstillinger.'),
-        ),
-      );
-      return;
-    }
-
-    await _reminders.enableDailyReminders(_reminderTime);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Daglige påmindelser er aktiveret for december kl. ${_formatTime(_reminderTime)}.',
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<TimeOfDay?> _pickReminderTime(
-    BuildContext context,
-    TimeOfDay initial,
-  ) async {
-    final selected = await showTimePicker(
-      context: context,
-      initialTime: initial,
-      helpText: 'Vælg tidspunkt for daglig påmindelse',
-    );
-    return selected;
-  }
-
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
+  final String? label;
+  final AdventCalendarEntry? entry;
+  final bool isHeader;
 }
