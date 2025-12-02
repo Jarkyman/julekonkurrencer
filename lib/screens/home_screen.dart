@@ -7,6 +7,8 @@ import '../services/calendar_storage.dart';
 import 'edit_entry_screen.dart';
 import 'predefined_selection_screen.dart';
 import '../services/predefined_calendar_loader.dart';
+import '../services/reminder_service.dart';
+import '../services/done_today_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.analytics});
@@ -21,18 +23,29 @@ class _HomeScreenState extends State<HomeScreen> {
   final _storage = CalendarStorage();
   final _launcher = CalendarLauncher();
   final _predefinedLoader = PredefinedCalendarLoader();
+  final _reminders = ReminderService();
+  final _doneToday = DoneTodayService();
   List<AdventCalendarEntry> _entries = [];
   bool _loading = true;
   CalendarType? _filter;
+  static const _defaultReminderTime = TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay _reminderTime = _defaultReminderTime;
 
   @override
   void initState() {
     super.initState();
     _loadEntries();
+    _initReminders();
   }
 
   Future<void> _loadEntries() async {
     final entries = await _storage.loadEntries();
+    await _doneToday.clearAllNotToday();
+    final updated = <AdventCalendarEntry>[];
+    for (final entry in entries) {
+      final isDone = await _doneToday.isDone(entry.id);
+      updated.add(entry.copyWith(doneToday: isDone));
+    }
     final hasSeenPredefined = await _storage.hasSeenPredefinedPrompt();
     final predefined =
         hasSeenPredefined ? <AdventCalendarEntry>[] : await _predefinedLoader.load();
@@ -49,6 +62,26 @@ class _HomeScreenState extends State<HomeScreen> {
         _showPredefinedSelection(predefined);
       });
     }
+  }
+
+  Future<void> _initReminders() async {
+    await _reminders.init();
+    _reminderTime = await _reminders.currentReminderTime(_defaultReminderTime);
+    final enabled = await _reminders.isEnabled();
+    if (enabled) {
+      final granted = await _reminders.requestPermission();
+      if (granted) {
+        await _reminders.enableDailyReminders(_reminderTime);
+      }
+      return;
+    }
+
+    final shouldShow = await _reminders.shouldShowOnboarding();
+    if (!shouldShow || !mounted) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showReminderPrompt();
+    });
   }
 
   List<AdventCalendarEntry> _sorted(List<AdventCalendarEntry> entries) {
@@ -184,6 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openEntry(AdventCalendarEntry entry) async {
     await _launcher.openEntry(context, entry);
     await widget.analytics.logOpenCalendar(entry);
+    await _markDoneToday(entry);
   }
 
   Future<void> _toggleFavorite(AdventCalendarEntry entry) async {
@@ -238,7 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             backgroundColor: Theme.of(
                               context,
                             ).colorScheme.primaryContainer,
-                            child: Icon(_iconForType(entry.type)),
+                            child: Icon(
+                              entry.doneToday
+                                  ? Icons.check_circle
+                                  : _iconForType(entry.type),
+                            ),
                           ),
                           title: Text(entry.name),
                           subtitle: Text(_secondaryText(entry)),
@@ -398,5 +436,94 @@ class _HomeScreenState extends State<HomeScreen> {
       case CalendarType.email:
         return 'E-mail påmindelse';
     }
+  }
+
+  Future<void> _markDoneToday(AdventCalendarEntry entry) async {
+    await _doneToday.setDone(entry.id, DateTime.now());
+    setState(() {
+      final index = _entries.indexWhere((e) => e.id == entry.id);
+      if (index >= 0) {
+        _entries[index] = entry.copyWith(doneToday: true);
+      }
+      _entries = _sorted(_entries);
+    });
+  }
+
+  Future<void> _showReminderPrompt() async {
+    final newTime = await _pickReminderTime(context, _reminderTime);
+    if (newTime == null) {
+      await _reminders.markOnboardingShown();
+      return;
+    }
+
+    _reminderTime = newTime;
+
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Daglig påmindelse?'),
+          content: const Text(
+            'Vil du have en daglig påmindelse i december om at åbne dine julekalendere?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Ikke nu'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Ja tak'),
+            ),
+          ],
+        );
+      },
+    );
+
+    await _reminders.markOnboardingShown();
+
+    if (accepted != true) {
+      return;
+    }
+
+    final granted = await _reminders.requestPermission();
+    if (!granted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tilladelse afvist. Aktivér notifikationer i indstillinger.'),
+        ),
+      );
+      return;
+    }
+
+    await _reminders.enableDailyReminders(_reminderTime);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Daglige påmindelser er aktiveret for december kl. ${_formatTime(_reminderTime)}.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<TimeOfDay?> _pickReminderTime(
+    BuildContext context,
+    TimeOfDay initial,
+  ) async {
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      helpText: 'Vælg tidspunkt for daglig påmindelse',
+    );
+    return selected;
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 }

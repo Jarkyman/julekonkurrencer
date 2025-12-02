@@ -24,6 +24,7 @@ class AdventCalendarEntry {
     this.isFavorite = false,
     required this.createdAt,
     required this.updatedAt,
+    this.doneToday = false,
   });
 
   final String id;
@@ -39,6 +40,7 @@ class AdventCalendarEntry {
   final bool isFavorite;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool doneToday;
 
   factory AdventCalendarEntry.create({
     required String name,
@@ -51,6 +53,7 @@ class AdventCalendarEntry {
     String? note,
     bool isPredefined = false,
     bool isFavorite = false,
+    bool doneToday = false,
   }) {
     final now = DateTime.now();
     return AdventCalendarEntry(
@@ -67,6 +70,7 @@ class AdventCalendarEntry {
       isFavorite: isFavorite,
       createdAt: now,
       updatedAt: now,
+      doneToday: doneToday,
     );
   }
 
@@ -84,6 +88,7 @@ class AdventCalendarEntry {
     bool? isFavorite,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? doneToday,
   }) {
     return AdventCalendarEntry(
       id: id ?? this.id,
@@ -99,6 +104,7 @@ class AdventCalendarEntry {
       isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      doneToday: doneToday ?? this.doneToday,
     );
   }
 
@@ -117,6 +123,7 @@ class AdventCalendarEntry {
       'isFavorite': isFavorite,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'doneToday': doneToday,
     };
   }
 
@@ -139,6 +146,7 @@ class AdventCalendarEntry {
       updatedAt:
           DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
           DateTime.now(),
+      doneToday: json['doneToday'] as bool? ?? false,
     );
   }
 }

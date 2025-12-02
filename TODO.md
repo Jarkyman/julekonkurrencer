@@ -153,28 +153,21 @@ Goal: Quality-of-life improvements and polish for December usage.
 
 ### Daily Reminders
 
-- [ ] Add local notifications (e.g. using `flutter_local_notifications`).
-- [ ] Ask user to allow notifications.
-- [ ] Schedule daily notification(s) in December:
-  - [ ] Default time, e.g. 09:00.
-  - [ ] Message like “Remember to check your Christmas competitions 🎄”.
+- [x] Add local notifications (e.g. using `flutter_local_notifications`).
+- [x] Ask user to allow notifications.
+- [x] Schedule daily notification(s) in December:
+  - [x] Default time, e.g. 09:00.
+  - [x] Message like “Remember to check your Christmas competitions”.
 - [ ] Optional: configurable reminder time in settings.
 
 ### “Done Today” / Progress
 
-- [ ] Add a per-entry state for “completed today”.
-- [ ] On the home screen:
-  - [ ] Show a checkmark or indicator if the user has marked it as done for today.
+- [x] Add a per-entry state for “completed today”.
+- [x] On the home screen:
+  - [x] Show a checkmark or indicator if the user has marked it as done for today.
 - [ ] Add a small summary:
   - [ ] “X / Y calendars done today”.
-- [ ] Reset “done today” status automatically at midnight or on app open next day.
-
-### Backup / Restore
-
-- [ ] Add export/import functionality:
-  - [ ] Export: serialize user’s list to JSON and allow copying or saving to a file.
-  - [ ] Import: paste JSON or select file and merge/replace the existing list.
-- [ ] Handle validation and error states.
+- [x] Reset “done today” status automatically at midnight or on app open next day.
 
 ### Theming and Polish
 
@@ -183,6 +176,7 @@ Goal: Quality-of-life improvements and polish for December usage.
   - [ ] Icons or small decorative touches.
 - [ ] Create a custom app icon related to Christmas competitions.
 - [ ] Add a simple splash screen.
+- [ ] Refresh overall UI styling so it looks polished (layouts, spacing, buttons, fonts, colors).
 
 ### Optional: In-App WebView
 
