@@ -6,6 +6,7 @@ import '../models/advent_calendar_entry.dart';
 
 class CalendarStorage {
   static const _storageKey = 'calendar_entries';
+  static const _predefinedSeenKey = 'predefined_seen';
 
   Future<List<AdventCalendarEntry>> loadEntries() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,5 +35,15 @@ class CalendarStorage {
       entries.map((entry) => entry.toJson()).toList(growable: false),
     );
     await prefs.setString(_storageKey, payload);
+  }
+
+  Future<bool> hasSeenPredefinedPrompt() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_predefinedSeenKey) ?? false;
+  }
+
+  Future<void> markPredefinedPromptSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_predefinedSeenKey, true);
   }
 }

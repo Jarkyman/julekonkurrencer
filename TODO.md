@@ -111,39 +111,39 @@ Goal: Better usability, predefined calendars and simple filtering.
 
 ### Predefined Calendars
 
-- [ ] Add `assets/predefined_calendars.json` to the project.
-  - [ ] Define JSON array following `AdventCalendarEntry` structure (subset is fine).
-  - [ ] Include popular Danish website calendars.
-  - [ ] Include app-based calendars (McDonald’s, Meny, etc.).
-  - [ ] Use affiliate URLs where possible in the `url` field.
-  - [ ] Mark these with `isPredefined: true`.
-- [ ] Load predefined calendars on startup:
-  - [ ] Parse JSON from assets.
-  - [ ] Keep in memory as a separate list from user’s list.
+- [x] Add `predefined_calendars.json` to the project from github gist (https://gist.githubusercontent.com/Jarkyman/6bdd0d0b99f06e8f8878b4309a181e82/raw/predefined_calendars.json).
+  - [x] Define JSON array following `AdventCalendarEntry` structure (subset is fine).
+  - [x] Include popular Danish website calendars.
+  - [x] Include app-based calendars (McDonald’s, Meny, etc.).
+  - [x] Use affiliate URLs where possible in the `url` field.
+  - [x] Mark these with `isPredefined: true`.
+- [x] Load predefined calendars on startup:
+  - [x] Parse JSON from assets.
+  - [x] Keep in memory as a separate list from user’s list.
 
 ### UI for Predefined Calendars
 
-- [ ] Create a screen or dialog to browse predefined calendars:
-  - [ ] List items with name and type.
-  - [ ] “Add” button to add an item to user’s list.
-- [ ] When adding:
-  - [ ] Create a copy of the predefined entry.
-  - [ ] Set `isPredefined` on the instance.
-  - [ ] Add to local storage list.
-- [ ] Analytics:
-  - [ ] Log `view_predefined_list`.
-  - [ ] Log `add_predefined_calendar`.
+- [x] Create a screen or dialog to browse predefined calendars:
+  - [x] List items with name and type.
+  - [x] “Add” button to add an item to user’s list.
+- [x] When adding:
+  - [x] Create a copy of the predefined entry.
+  - [x] Set `isPredefined` on the instance.
+  - [x] Add to local storage list.
+- [x] Analytics:
+  - [x] Log `view_predefined_list`.
+  - [x] Log `add_predefined_calendar`.
 
 ### Filtering and Favorites
 
-- [ ] Add `isFavorite` toggle to `AdventCalendarEntry`.
-- [ ] Update UI:
-  - [ ] Add a control for filtering by type: All / Website / App / Physical / Email.
-  - [ ] Add simple sorting:
+- [x] Add `isFavorite` toggle to `AdventCalendarEntry`.
+- [x] Update UI:
+  - [x] Add a control for filtering by type: All / Website / App / Physical / Email.
+  - [x] Add simple sorting:
     - Favorites first, then alphabetical by name.
-- [ ] Provide a way to toggle favorite from the home list or detail view.
-- [ ] Analytics:
-  - [ ] Log `toggle_favorite`.
+- [x] Provide a way to toggle favorite from the home list or detail view.
+- [x] Analytics:
+  - [x] Log `toggle_favorite`.
 
 ---
 

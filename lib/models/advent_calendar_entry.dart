@@ -14,6 +14,7 @@ class AdventCalendarEntry {
     required this.id,
     required this.name,
     required this.type,
+    this.logo,
     this.url,
     this.appPackage,
     this.iosBundleId,
@@ -28,6 +29,7 @@ class AdventCalendarEntry {
   final String id;
   final String name;
   final CalendarType type;
+  final String? logo;
   final String? url;
   final String? appPackage;
   final String? iosBundleId;
@@ -41,6 +43,7 @@ class AdventCalendarEntry {
   factory AdventCalendarEntry.create({
     required String name,
     required CalendarType type,
+    String? logo,
     String? url,
     String? appPackage,
     String? iosBundleId,
@@ -54,6 +57,7 @@ class AdventCalendarEntry {
       id: const Uuid().v4(),
       name: name,
       type: type,
+      logo: logo,
       url: url,
       appPackage: appPackage,
       iosBundleId: iosBundleId,
@@ -70,6 +74,7 @@ class AdventCalendarEntry {
     String? id,
     String? name,
     CalendarType? type,
+    String? logo,
     String? url,
     String? appPackage,
     String? iosBundleId,
@@ -84,6 +89,7 @@ class AdventCalendarEntry {
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
+      logo: logo ?? this.logo,
       url: url ?? this.url,
       appPackage: appPackage ?? this.appPackage,
       iosBundleId: iosBundleId ?? this.iosBundleId,
@@ -101,6 +107,7 @@ class AdventCalendarEntry {
       'id': id,
       'name': name,
       'type': type.name,
+      'logo': logo,
       'url': url,
       'appPackage': appPackage,
       'iosBundleId': iosBundleId,
@@ -118,6 +125,7 @@ class AdventCalendarEntry {
       id: json['id'] as String,
       name: json['name'] as String,
       type: calendarTypeFromString(json['type'] as String),
+      logo: json['logo'] as String? ?? json['Logo'] as String?,
       url: json['url'] as String?,
       appPackage: json['appPackage'] as String?,
       iosBundleId: json['iosBundleId'] as String?,

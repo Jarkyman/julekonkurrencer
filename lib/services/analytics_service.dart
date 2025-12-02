@@ -19,6 +19,13 @@ class AnalyticsService {
     );
   }
 
+  Future<void> logAddPredefinedCalendar(AdventCalendarEntry entry) async {
+    await _analytics?.logEvent(
+      name: 'add_predefined_calendar',
+      parameters: _eventParams(entry),
+    );
+  }
+
   Future<void> logOpenCalendar(AdventCalendarEntry entry) async {
     await _analytics?.logEvent(
       name: 'open_calendar',
@@ -38,6 +45,10 @@ class AnalyticsService {
       name: 'toggle_favorite',
       parameters: _eventParams(entry, extra: {'is_favorite': entry.isFavorite}),
     );
+  }
+
+  Future<void> logViewPredefinedList() async {
+    await _analytics?.logEvent(name: 'view_predefined_list');
   }
 
   Map<String, Object> _eventParams(
