@@ -41,18 +41,55 @@ class PredefinedCalendarLoader {
 
   List<AdventCalendarEntry> _parseEntries(String content) {
     final decoded = jsonDecode(content) as Map<String, dynamic>;
-    final entries = decoded['entries'] as List<dynamic>? ?? [];
+    final calendars = (decoded['calendars'] as List<dynamic>?) ??
+        (decoded['entries'] as List<dynamic>?) ??
+        <dynamic>[];
 
-    return entries
-        .map(
-          (item) => AdventCalendarEntry.fromJson(
-            _withLogoFallback(item as Map<String, dynamic>),
-          ),
-        )
+    return calendars
+        .map((item) => _toEntry(item as Map<String, dynamic>))
+        .whereType<AdventCalendarEntry>()
         .toList(growable: false);
   }
 
-  Map<String, dynamic> _withLogoFallback(Map<String, dynamic> json) {
+  AdventCalendarEntry? _toEntry(Map<String, dynamic> json) {
+    final typeName = (json['kind'] ?? json['type'] ?? '').toString();
+    final type = _mapKind(typeName);
+    if (type == null) return null;
+
+    final logo = json['logo'] ?? json['Logo'] ?? _faviconFromUrl(json['url']);
+    final mapped = {
+      'id': json['id'],
+      'name': json['name'],
+      'type': type.name,
+      'logo': logo,
+      'url': json['url'],
+      'appPackage': json['androidPackage'] ?? json['appPackage'],
+      'iosBundleId': json['iosBundleId'],
+      'note': json['note'],
+      'createdAt': DateTime.now().toIso8601String(),
+      'updatedAt': DateTime.now().toIso8601String(),
+    };
+
+    return AdventCalendarEntry.fromJson(mapped);
+  }
+
+  CalendarType? _mapKind(String kind) {
+    switch (kind.toLowerCase()) {
+      case 'website':
+      case 'web':
+        return CalendarType.website;
+      case 'app':
+        return CalendarType.app;
+      case 'email':
+        return CalendarType.email;
+      case 'physical':
+        return CalendarType.physical;
+      default:
+        return null;
+    }
+  }
+
+  Map<String, dynamic> _withLogoFallbackOld(Map<String, dynamic> json) {
     final logo = json['logo'] ?? json['Logo'] ?? _faviconFromUrl(json['url']);
     return {
       ...json,

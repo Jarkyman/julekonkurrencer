@@ -5,6 +5,7 @@ import '../services/analytics_service.dart';
 import '../services/calendar_launcher.dart';
 import '../services/calendar_storage.dart';
 import '../widgets/widgets.dart';
+import '../widgets/reminder_settings_sheet.dart';
 import 'edit_entry_screen.dart';
 import 'home/home_manager.dart';
 import '../services/predefined_calendar_loader.dart';
@@ -80,13 +81,44 @@ class _HomeScreenState extends State<HomeScreen> {
     final seenOnboarding = await _storage.hasSeenOnboarding();
     if (!seenOnboarding) return;
     _reminderTime = await _reminders.currentReminderTime(_defaultReminderTime);
+  }
+
+  Future<void> _openReminderSettings() async {
     final enabled = await _reminders.isEnabled();
-    if (enabled) {
+    final currentTime = await _reminders.currentReminderTime(
+      _defaultReminderTime,
+    );
+
+    if (!mounted) return;
+
+    final result = await showReminderSettingsSheet(
+      context: context,
+      initialEnabled: enabled,
+      initialTime: currentTime,
+    );
+
+    if (result == null) return;
+
+    if (result.enabled) {
       final granted = await _reminders.requestPermission();
-      if (granted) {
-        await _reminders.enableDailyReminders(_reminderTime);
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Tillad notifikationer i Indstillinger for påmindelser.',
+              ),
+            ),
+          );
+        }
+        return;
       }
-      return;
+      await _reminders.enableDailyReminders(result.time);
+      setState(() {
+        _reminderTime = result.time;
+      });
+    } else {
+      await _reminders.disableReminders();
     }
   }
 
@@ -130,17 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _reminderTime = outcome.reminderTime!;
     }
 
-    if (outcome.newEntries.isEmpty) return;
-
-    setState(() {
-      _entries = _manualOrder
-          ? [..._entries, ...outcome.newEntries]
-          : _manager.sortEntries([..._entries, ...outcome.newEntries]);
-      if (_manualOrder) {
-        _alignManualOrder();
-      }
-    });
-    await _persist();
+    await _addNewEntries(outcome.newEntries);
   }
 
   Future<void> _openEditor({AdventCalendarEntry? entry}) async {
@@ -260,8 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final entry in entries) {
       types.add(entry.type);
     }
-    return types.toList()
-      ..sort((a, b) => _manager.labelForType(a).compareTo(_manager.labelForType(b)));
+    return types.toList()..sort(
+      (a, b) => _manager.labelForType(a).compareTo(_manager.labelForType(b)),
+    );
   }
 
   @override
@@ -270,7 +293,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       drawer: AppDrawer(
-        onOpenNotifications: _reminders.openSettings,
+        onOpenNotifications: _openReminderSettings,
+        onOpenPredefined: _openPredefinedPicker,
         onShowAbout: () {},
         openMapsEnabled: _openMapsEnabled,
         onToggleOpenMaps: (value) async {
@@ -299,29 +323,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   onAction: _openEditor,
                 )
               : Column(
-                  children: [
-                    CalendarFilterBar(
-                      selected: _filter,
-                      availableTypes: _availableTypes(_entries),
-                      onSelected: (value) => setState(() => _filter = value),
-                      labelBuilder: _manager.labelForType,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: CalendarListCard(
-                          entries: _manager.groupByToday(visibleEntries),
-                          allowReorder: _filter == null,
-                          onOpen: _openEntry,
-                          onEdit: (entry) => _openEditor(entry: entry),
-                          onDelete: _deleteEntry,
-                          onToggleFavorite: _toggleFavorite,
-                          onReorder: _onReorder,
-                        ),
-                      ),
-                    ),
-                  ],
+              children: [
+                CalendarFilterBar(
+                  selected: _filter,
+                  availableTypes: _availableTypes(_entries),
+                  onSelected: (value) => setState(() => _filter = value),
+                  labelBuilder: _manager.labelForType,
                 ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: CalendarListCard(
+                      entries: _manager.groupByToday(visibleEntries),
+                      allowReorder: _filter == null,
+                      onOpen: _openEntry,
+                      onEdit: (entry) => _openEditor(entry: entry),
+                      onDelete: _deleteEntry,
+                      onToggleFavorite: _toggleFavorite,
+                      onReorder: _onReorder,
+                    ),
+                  ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openEditor,
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -344,5 +368,42 @@ class _HomeScreenState extends State<HomeScreen> {
         _alignManualOrder();
       }
     });
+  }
+
+  Future<void> _addNewEntries(List<AdventCalendarEntry> newEntries) async {
+    if (newEntries.isEmpty) return;
+    setState(() {
+      _entries = _manualOrder
+          ? [..._entries, ...newEntries]
+          : _manager.sortEntries([..._entries, ...newEntries]);
+      if (_manualOrder) {
+        _alignManualOrder();
+      }
+    });
+    await _persist();
+  }
+
+  Future<void> _openPredefinedPicker() async {
+    final allPredefined = await _predefinedLoader.load();
+    final existingIds = _entries.map((e) => e.id).toSet();
+    final available = allPredefined
+        .where((entry) => !existingIds.contains(entry.id))
+        .toList();
+    if (available.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ingen nye kalender at tilføje.')),
+        );
+      }
+      return;
+    }
+
+    final newOnes = await _manager.selectPredefined(
+      context: context,
+      predefined: available,
+      existingEntries: _entries,
+    );
+
+    await _addNewEntries(newOnes);
   }
 }
