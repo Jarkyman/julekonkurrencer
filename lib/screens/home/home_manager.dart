@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../models/advent_calendar_entry.dart';
@@ -138,6 +140,14 @@ class HomeManager {
     }
   }
 
+  String? _chooseInitialAppPackage(AdventCalendarEntry entry) {
+    if (!Platform.isAndroid) return entry.appPackage;
+    if ((entry.appPackage ?? '').isNotEmpty) {
+      return entry.appPackage;
+    }
+    return null;
+  }
+
   Future<List<AdventCalendarEntry>> selectPredefined({
     required BuildContext context,
     required List<AdventCalendarEntry> predefined,
@@ -178,6 +188,7 @@ class HomeManager {
       final copy = entry.copyWith(
         isPredefined: true,
         updatedAt: now,
+        appPackage: _chooseInitialAppPackage(entry),
       );
       newEntries.add(copy);
       await analytics.logAddPredefinedCalendar(copy);
@@ -221,6 +232,7 @@ class HomeManager {
       final copy = entry.copyWith(
         isPredefined: true,
         updatedAt: now,
+        appPackage: _chooseInitialAppPackage(entry),
       );
       newEntries.add(copy);
       await analytics.logAddPredefinedCalendar(copy);
@@ -229,7 +241,19 @@ class HomeManager {
     if (result.notificationsEnabled && result.reminderTime != null) {
       final granted = await reminders.requestPermission();
       if (granted) {
-        await reminders.enableDailyReminders(result.reminderTime!);
+        try {
+          await reminders.enableDailyReminders(result.reminderTime!);
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Kunne ikke planlægge påmindelser (mangler rettigheder til præcise alarmer).',
+                ),
+              ),
+            );
+          }
+        }
       } else if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

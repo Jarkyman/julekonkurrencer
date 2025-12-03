@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
 import '../models/advent_calendar_entry.dart';
 import '../services/app_picker.dart';
@@ -25,6 +28,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   String? _selectedAppPackage;
   String? _selectedAppName;
   bool _loadingApps = false;
+  String _appSearch = '';
+  Uint8List? _selectedAppIcon;
 
   @override
   void initState() {
@@ -42,7 +47,11 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     _locationController = TextEditingController(text: entry?.location ?? '');
     _noteController = TextEditingController(text: entry?.note ?? '');
     _selectedAppPackage = entry?.appPackage;
-    _selectedAppName = entry?.name;
+    _selectedAppName = entry?.appPackage != null ? entry?.name : null;
+    _selectedAppIcon = null;
+    _appSearch = _nameController.text;
+    _appPicker.warmUp();
+    _loadSelectedAppDetails();
   }
 
   @override
@@ -148,22 +157,12 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           const SizedBox(height: 16),
         ];
       case CalendarType.app:
-        return [
-          _buildAppPicker(),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _iosBundleController,
-            decoration: const InputDecoration(
-              labelText: 'iOS bundle id (valgfri)',
-              hintText: 'com.firma.appnavn',
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _urlController,
-            decoration: const InputDecoration(
-              labelText: 'Butik eller deep link (valgfri)',
-            ),
+        if (Platform.isAndroid) {
+          return [_buildAppPicker(), const SizedBox(height: 16)];
+        }
+        return const [
+          Text(
+            'På iOS angiver du blot navn og note. App-liste er kun tilgængelig på Android.',
           ),
         ];
       case CalendarType.physical:
@@ -175,6 +174,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
               hintText: 'Fx SuperBrugsen i Aarhus',
             ),
           ),
+          const SizedBox(height: 16),
         ];
       case CalendarType.email:
         return [];
@@ -219,14 +219,36 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
 
   Widget _buildAppPicker() {
     final selectionText = _selectedAppPackage == null
-        ? 'Ingen app valgt (kun Android)'
+        ? 'Ingen app valgt'
         : (_selectedAppName ?? _selectedAppPackage!);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            if (_selectedAppIcon != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.memory(
+                  _selectedAppIcon!,
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.apps, color: Colors.grey),
+              ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 selectionText,
@@ -246,19 +268,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        const Text(
-          'Vi kan vise installerede apps på Android. På iOS skal du evt. bruge et link eller note.',
-          style: TextStyle(fontSize: 12),
-        ),
-        if (_selectedAppPackage != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'Pakke: $_selectedAppPackage',
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-          ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -285,24 +295,82 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     }
 
     if (!mounted) return;
+    _appSearch = _nameController.text.trim();
+    final searchController = TextEditingController(text: _appSearch);
     final choice = await showModalBottomSheet<AppChoice>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       builder: (context) {
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            final app = apps[index];
-            final selected = app.packageName == _selectedAppPackage;
-            return ListTile(
-              title: Text(app.name),
-              subtitle: Text(app.packageName),
-              trailing: selected ? const Icon(Icons.check) : null,
-              onTap: () => Navigator.of(context).pop(app),
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final query = _appSearch.toLowerCase();
+            final filtered = query.isEmpty
+                ? apps
+                : apps
+                      .where(
+                        (app) =>
+                            app.name.toLowerCase().contains(query) ||
+                            app.packageName.toLowerCase().contains(query),
+                      )
+                      .toList();
+
+            return FractionallySizedBox(
+              heightFactor: 0.8,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 12,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                ),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Søg efter app',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (value) {
+                        setSheetState(() => _appSearch = value);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: ListView.separated(
+                        itemBuilder: (context, index) {
+                          final app = filtered[index];
+                          final selected =
+                              app.packageName == _selectedAppPackage;
+                          return ListTile(
+                            leading: app.iconBytes == null
+                                ? const SizedBox.shrink()
+                                : SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: Image.memory(
+                                      app.iconBytes!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                            title: Text(app.name),
+                            subtitle: Text(app.packageName),
+                            trailing: selected ? const Icon(Icons.check) : null,
+                            onTap: () => Navigator.of(context).pop(app),
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemCount: filtered.length,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
-          separatorBuilder: (context, _) => const Divider(height: 1),
-          itemCount: apps.length,
         );
       },
     );
@@ -311,9 +379,28 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       setState(() {
         _selectedAppPackage = choice.packageName;
         _selectedAppName = choice.name;
+        _selectedAppIcon = choice.iconBytes;
         _appPackageController.text = choice.packageName;
+        _nameController.text = choice.name;
       });
     }
+  }
+
+  Future<void> _loadSelectedAppDetails() async {
+    if (!Platform.isAndroid) return;
+    final package = _selectedAppPackage;
+    if (package == null || package.isEmpty) return;
+    final apps = await _appPicker.loadInstalledApps();
+    final match = apps
+        .where((a) => a.packageName == package)
+        .cast<AppChoice?>()
+        .firstWhere((a) => a != null, orElse: () => null);
+    if (!mounted || match == null) return;
+    setState(() {
+      _selectedAppName = match.name;
+      _selectedAppIcon = match.iconBytes;
+      _nameController.text = match.name;
+    });
   }
 
   String _labelForType(CalendarType type) {

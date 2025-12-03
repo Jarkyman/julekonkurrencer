@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone_plus/flutter_timezone_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -84,7 +84,15 @@ class ReminderService {
     await prefs.setBool(_enabledKey, true);
     await prefs.setInt(_timeHourKey, time.hour);
     await prefs.setInt(_timeMinuteKey, time.minute);
-    await _scheduleDecemberReminders(time);
+    try {
+      await _scheduleDecemberReminders(time);
+    } on PlatformException catch (e) {
+      if (e.code == 'exact_alarms_not_permitted') {
+        // Gracefully ignore if exact alarms are not allowed; caller can surface a toast.
+        return;
+      }
+      rethrow;
+    }
   }
 
   Future<void> disableReminders() async {
@@ -156,15 +164,14 @@ class ReminderService {
 
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
-    try {
-      final timeZoneName = await FlutterTimezone.getLocalTimezone();
-      if (timeZoneName != null) {
-        tz.setLocalLocation(tz.getLocation(timeZoneName));
-      } else {
-        tz.setLocalLocation(tz.getLocation('UTC'));
-      }
-    } catch (_) {
-      tz.setLocalLocation(tz.getLocation('UTC'));
+    tz.setLocalLocation(tz.getLocation(_localTimeZoneName()));
+  }
+
+  String _localTimeZoneName() {
+    final name = DateTime.now().timeZoneName.toLowerCase();
+    if (name.contains('cet') || name.contains('cest')) {
+      return 'Europe/Copenhagen';
     }
+    return 'UTC';
   }
 }

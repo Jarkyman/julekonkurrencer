@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
+import 'services/app_picker.dart';
 import 'screens/home_screen.dart';
 import 'services/analytics_service.dart';
 import 'theme/app_theme.dart';
@@ -9,6 +10,8 @@ import 'theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final analytics = AnalyticsService();
+    // Warm up app list on Android so app chooser opens faster.
+  AppPickerService().warmUp();
   await _initFirebase(analytics);
   runApp(JulekonkurrencerApp(analytics: analytics));
 }

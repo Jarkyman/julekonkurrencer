@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_device_apps/flutter_device_apps.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/advent_calendar_entry.dart';
@@ -7,7 +10,7 @@ class CalendarLauncher {
   Future<void> openEntry(
     BuildContext context,
     AdventCalendarEntry entry,
-  ) async {
+    {required bool openMapsForPhysical}) async {
     switch (entry.type) {
       case CalendarType.website:
         await _openWebsite(context, entry);
@@ -16,26 +19,46 @@ class CalendarLauncher {
         await _openApp(context, entry);
         break;
       case CalendarType.physical:
-        _showInfoSheet(
-          context,
-          title: entry.name,
-          message: entry.location?.isNotEmpty == true
-              ? 'Sted: ${entry.location}\n\n${entry.note ?? ''}'.trim()
-              : (entry.note?.isNotEmpty == true
-                    ? entry.note!
-                    : 'Tilføj en note så du husker, hvad der skal gøres.'),
-        );
+        await _handlePhysical(context, entry, openMapsForPhysical);
         break;
       case CalendarType.email:
-        _showInfoSheet(
-          context,
-          title: entry.name,
-          message: entry.note?.isNotEmpty == true
-              ? entry.note!
-              : 'Tjek din indbakke for dagens julekonkurrence.',
-        );
+        await _handleEmail();
         break;
     }
+  }
+
+  Future<void> _handlePhysical(
+    BuildContext context,
+    AdventCalendarEntry entry,
+    bool openMapsForPhysical,
+  ) async {
+    final location = entry.location ?? '';
+    final opened = await _maybeLaunchMaps(location, openMapsForPhysical);
+    if (opened) return;
+    if (!context.mounted) return;
+    // Ingen popup når maps er slukket; lad caller håndtere done-markering.
+  }
+
+  Future<bool> _maybeLaunchMaps(String location, bool enabled) async {
+    if (!enabled || location.isEmpty) return false;
+
+    final query = Uri.encodeComponent(location);
+    final candidates = [
+      Uri.parse('geo:0,0?q=$query'),
+      Uri.parse('https://www.google.com/maps/search/?api=1&query=$query'),
+      Uri.parse('https://maps.apple.com/?q=$query'),
+    ];
+
+    for (final uri in candidates) {
+      try {
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        if (launched) return true;
+      } catch (_) {}
+    }
+    return false;
   }
 
   Future<void> _openWebsite(
@@ -57,14 +80,27 @@ class CalendarLauncher {
   }
 
   Future<void> _openApp(BuildContext context, AdventCalendarEntry entry) async {
-    final link =
-        entry.url ??
-        _storeLinkFromPackage(
-          appPackage: entry.appPackage,
-          iosBundleId: entry.iosBundleId,
-        );
+    if (Platform.isAndroid && (entry.appPackage ?? '').isNotEmpty) {
+      final launched = await FlutterDeviceApps.openApp(entry.appPackage!);
+      if (launched) return;
+    }
 
-    final uri = _parseUrl(link);
+    // Fallback 1: butik fra app/bundle id.
+    final storeLink = _storeLinkFromPackage(
+      appPackage: entry.appPackage,
+      iosBundleId: entry.iosBundleId,
+    );
+    final storeUri = _parseUrl(storeLink);
+    if (storeUri != null) {
+      final storeLaunched = await launchUrl(
+        storeUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (storeLaunched) return;
+    }
+
+    // Fallback 2: deep link / manuel url.
+    final uri = _parseUrl(entry.url);
     if (uri == null) {
       _showSnack(context, 'Tilføj et link eller app-id for at åbne.');
       return;
@@ -88,6 +124,18 @@ class CalendarLauncher {
     }
 
     return null;
+  }
+
+  Future<void> _handleEmail(
+  ) async {
+    if (Platform.isAndroid) {
+      final intent = Uri.parse(
+        'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end',
+      );
+      try {
+        await launchUrl(intent, mode: LaunchMode.externalApplication);
+      } catch (_) {}
+    }
   }
 
   Uri? _parseUrl(String? link) {

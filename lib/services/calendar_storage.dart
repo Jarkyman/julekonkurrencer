@@ -9,6 +9,7 @@ class CalendarStorage {
   static const _predefinedSeenKey = 'predefined_seen';
   static const _onboardingSeenKey = 'onboarding_seen';
   static const _manualOrderKey = 'manual_order_enabled';
+  static const _mapsEnabledKey = 'open_maps_enabled';
 
   Future<List<AdventCalendarEntry>> loadEntries() async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,6 +48,16 @@ class CalendarStorage {
   Future<void> setManualOrderEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_manualOrderKey, enabled);
+  }
+
+  Future<bool> mapsOpenEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_mapsEnabledKey) ?? true;
+  }
+
+  Future<void> setMapsOpenEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_mapsEnabledKey, enabled);
   }
 
   Future<bool> hasSeenPredefinedPrompt() async {

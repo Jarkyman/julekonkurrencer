@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _doneToday = DoneTodayService();
   late final HomeManager _manager;
   bool _manualOrder = false;
+  bool _openMapsEnabled = true;
   List<AdventCalendarEntry> _entries = [];
   bool _loading = true;
   CalendarType? _filter;
@@ -44,7 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
       analytics: widget.analytics,
     );
     _loadEntries();
+    _loadOpenSettings();
     _initReminders();
+  }
+
+  Future<void> _loadOpenSettings() async {
+    final maps = await _storage.mapsOpenEnabled();
+    if (!mounted) return;
+    setState(() {
+      _openMapsEnabled = maps;
+    });
   }
 
   Future<void> _loadEntries() async {
@@ -196,7 +206,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openEntry(AdventCalendarEntry entry) async {
-    await _launcher.openEntry(context, entry);
+    await _launcher.openEntry(
+      context,
+      entry,
+      openMapsForPhysical: _openMapsEnabled,
+    );
     await widget.analytics.logOpenCalendar(entry);
     await _markDoneToday(entry);
   }
@@ -258,6 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: AppDrawer(
         onOpenNotifications: _reminders.openSettings,
         onShowAbout: () {},
+        openMapsEnabled: _openMapsEnabled,
+        onToggleOpenMaps: (value) async {
+          setState(() => _openMapsEnabled = value);
+          await _storage.setMapsOpenEnabled(value);
+        },
       ),
       appBar: AppBar(
         title: const Text('Mine kalendere'),

@@ -5,10 +5,14 @@ class AppDrawer extends StatelessWidget {
     super.key,
     required this.onOpenNotifications,
     required this.onShowAbout,
+    required this.openMapsEnabled,
+    required this.onToggleOpenMaps,
   });
 
   final VoidCallback onOpenNotifications;
   final VoidCallback onShowAbout;
+  final bool openMapsEnabled;
+  final ValueChanged<bool> onToggleOpenMaps;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +26,12 @@ class AppDrawer extends StatelessWidget {
                 'Indstillinger',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
+            ),
+            SwitchListTile(
+              title: const Text('Åbn kort automatisk'),
+              subtitle: const Text('Søg efter lokation i Maps'),
+              value: openMapsEnabled,
+              onChanged: onToggleOpenMaps,
             ),
             ListTile(
               leading: const Icon(Icons.notifications),
