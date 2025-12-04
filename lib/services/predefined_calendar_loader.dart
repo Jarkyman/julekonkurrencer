@@ -65,6 +65,7 @@ class PredefinedCalendarLoader {
       'url': json['url'],
       'appPackage': json['androidPackage'] ?? json['appPackage'],
       'iosBundleId': json['iosBundleId'],
+      'iosStoreLink': json['iosStoreLink'] ?? json['iosStorLink'],
       'note': json['note'],
       'createdAt': DateTime.now().toIso8601String(),
       'updatedAt': DateTime.now().toIso8601String(),

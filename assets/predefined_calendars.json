@@ -4,26 +4,8 @@
   "updatedAt": "2025-12-03T16:30:00Z",
   "calendars": [
     {
-      "id": "elgiganten_julekalender",
-      "name": "Elgiganten Julekalender",
-      "kind": "website",
-      "url": "https://www.elgiganten.dk/kundeklub/julekalender",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.elgiganten.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer",
-        "Postnummer"
-      ],
-      "note": "Daglig online julekalender for kundeklubmedlemmer med præmier bag hver låge. Kræver login/tilmelding til kundeklubben."
-    },
-    {
       "id": "mcdonalds_julekalender_app",
-      "name": "McDonald’s Julekalender (app)",
+      "name": "McDonald’s",
       "kind": "app",
       "url": "https://www.mcdonalds.com/dk/da-dk/download-app.html",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.mcdonalds.com",
@@ -32,33 +14,38 @@
       "category": "online_julekalender",
       "affiliateLink": "",
       "androidPackage": "com.mcdonalds.mobileapp",
-      "iosBundleId": "",
+      "iosBundleId": "com.mcdonalds.mobileapp",
+      "iosStorLink": "id1217507712",
       "typicalFields": [
         "Navn",
         "E-mail",
         "Telefonnummer"
       ],
-      "note": "Julekalenderkampagne i McDonald’s-appen med daglige tilbud eller konkurrencer. Posten bruges som husker til at åbne appen hver dag."
+      "note": "Julekalenderkampagne i McDonald’s-appen med daglige tilbud. Gå ind og åben dagens låge"
     },
     {
       "id": "onskeskyen_julekalender",
-      "name": "Ønskeskyen Julekalender",
-      "kind": "website",
-      "url": "",
+      "name": "Ønskeskyen",
+      "kind": "App",
+      "url": "https://onskeskyen.dk/",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://onskeskyen.dk",
       "country": "DK",
       "language": "da",
       "category": "online_julekalender",
-      "affiliateLink": "",
+      "affiliateLink": "com.ovdal.onskeskyen",
+      "androidPackage": "com.mcdonalds.mobileapp",
+      "iosBundleId": "com.ovdal.onskeskyen",
+      "iosStorLink": "id973421404",
       "typicalFields": [
         "Navn",
-        "E-mail"
+        "E-mail",
+        "Telefonnummer"
       ],
-      "note": "Online julekalender for brugere af Ønskeskyen med konkurrencer og præmier. Udfyld URL, når du har den præcise kampagneside."
+      "note": "Online julekalender for brugere af Ønskeskyen med konkurrencer og præmier."
     },
     {
       "id": "meny_app_julekalender",
-      "name": "MENY Julekalender (app)",
+      "name": "Meny",
       "kind": "app",
       "url": "https://meny.dk/julekalender",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://meny.dk",
@@ -68,18 +55,19 @@
       "affiliateLink": "",
       "androidPackage": "dk.meny",
       "iosBundleId": "dk.meny.meny",
+      "iosStorLink": "id993170508",
       "typicalFields": [
         "Navn",
         "E-mail",
         "Telefonnummer",
         "Postnummer",
-        "Betalingskort knyttet til app"
+        "Betalingskort"
       ],
-      "note": "Spil ‘spin og vind’ julekalender i MENY-appen fra 1.–24. december med daglige præmier. Kræver oprettet MENY-app-bruger med tilknyttet betalingskort."
+      "note": "Spil ‘spin og vind’ julekalender i Meny-appen fra 1.–24. december med daglige præmier. Kræver oprettet MENY-app-bruger med tilknyttet betalingskort."
     },
     {
       "id": "sport24_julekalender",
-      "name": "SPORT 24 Julekalender",
+      "name": "SPORT 24",
       "kind": "website",
       "url": "https://www.sport24.dk/julekalender/",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.sport24.dk",
@@ -90,11 +78,11 @@
       "typicalFields": [
         "E-mail"
       ],
-      "note": "ÅBN DAGENS LÅGE OG SVAR RIGTIGT PÅ SPØRGSMÅLET, SÅ DELTAGER DU I KONKURRENCEN OM DAGENS PRÆMIE"
+      "note": "Åbn dagens låge og svar rigtigt på spørgsmålet, så deltager du i konkurrancen om dagens præmie"
     },
     {
       "id": "volkswagen_julekalender_2025",
-      "name": "Volkswagen Julekalender 2025",
+      "name": "Volkswagen",
       "kind": "website",
       "url": "https://jul.kampagne.volkswagen.dk/",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://volkswagen.dk",
@@ -111,7 +99,7 @@
     },
     {
       "id": "bmw_julekalender_2025",
-      "name": "BMW Julekalender 2025",
+      "name": "BMW",
       "kind": "website",
       "url": "https://www.bmw.dk/da/topics/discover/bmw-julekalender.html",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.bmw.dk",
@@ -124,11 +112,11 @@
         "E-mail",
         "Telefonnummer"
       ],
-      "note": "BMW’s danske julekalender med daglige konkurrencer og præmier for bilentusiaster."
+      "note": "BMW’s julekalender med daglige konkurrencer og præmier for bilentusiaster."
     },
     {
       "id": "xlbyg_julekalender",
-      "name": "XL-BYG Julekalender",
+      "name": "XL-BYG",
       "kind": "website",
       "url": "https://www.xl-byg.dk/artikel/julekalender",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.xl-byg.dk",
@@ -145,7 +133,7 @@
     },
     {
       "id": "bogide_julekalender_2025",
-      "name": "Bog & idé Julekalender 2025",
+      "name": "Bog & idé",
       "kind": "website",
       "url": "https://spil.bog-ide.dk/julekalender/Start",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.bog-ide.dk",
@@ -162,7 +150,7 @@
     },
     {
       "id": "blind_julekalender_2025",
-      "name": "Blindes Jul – julekalender",
+      "name": "Blindes Jul",
       "kind": "website",
       "url": "https://jul.blind.dk/Start",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://blind.dk",
@@ -178,7 +166,7 @@
     },
     {
       "id": "nemlig_julekalender_2025",
-      "name": "nemlig.com Julekalender 2025",
+      "name": "nemlig.com",
       "kind": "website",
       "url": "https://nemlig.campaign.scratcher.io/kalender-2025",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.nemlig.com",
@@ -191,11 +179,11 @@
         "E-mail",
         "Telefonnummer"
       ],
-      "note": "Online julekalenderkampagne fra nemlig.com med daglige konkurrencer og præmier til dagligvarekunder."
+      "note": "Online julekalender fra nemlig.com med daglige konkurrencer og præmier til dagligvarekunder."
     },
     {
       "id": "landbrugslotteriet_julekalender_2025",
-      "name": "Landbrugslotteriet Julekalender 2025",
+      "name": "Landbrugslotteriet",
       "kind": "website",
       "url": "https://konkurrencer.landbrugslotteriet.dk/julekalender2025/",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://landbrugslotteriet.dk",
@@ -211,7 +199,7 @@
     },
     {
       "id": "feriepartner_julekalender_2025",
-      "name": "Feriepartner Julekalender 2025",
+      "name": "Feriepartner",
       "kind": "website",
       "url": "https://feriepartner-danmark.campaign.playable.com/dk-julekalender-2025",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.feriepartner.dk",
@@ -228,7 +216,7 @@
     },
     {
       "id": "kristeligt_dagblad_julekalender_2025",
-      "name": "Kristeligt Dagblad Julekalender 2025",
+      "name": "Kristeligt Dagblad",
       "kind": "website",
       "url": "https://www.kristeligt-dagblad.dk/julekalender-deltag",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.kristeligt-dagblad.dk",
@@ -245,7 +233,7 @@
     },
     {
       "id": "wwf_julemission_2025",
-      "name": "WWF Julemission 2025",
+      "name": "WWF",
       "kind": "website",
       "url": "https://wwf-denmark.campaign.scratcher.io/christmas-2025",
       "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.wwf.dk",
@@ -257,7 +245,7 @@
         "Navn",
         "E-mail"
       ],
-      "note": "WWF’s julekampagne/julekalender med daglige missioner eller konkurrencer til fordel for natur og dyr."
+      "note": "WWF’s julekalender med daglige skrab og vind, til fordel for natur og dyr."
     },
     {
       "id": "vitaepro_julekalender_2025",

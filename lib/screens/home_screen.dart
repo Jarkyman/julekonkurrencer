@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_device_apps/flutter_device_apps.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/advent_calendar_entry.dart';
 import '../services/analytics_service.dart';
@@ -312,15 +316,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _entries.isEmpty
-              ? EmptyState(
-                  icon: Icons.calendar_month,
-                  title: 'Ingen kalendere endnu',
-                  message:
-                      'Tilføj dine julekonkurrencer, så du nemt kan åbne dem hver dag.',
-                  actionLabel: 'Tilføj din første',
-                  onAction: _openEditor,
-                )
-              : Column(
+          ? EmptyState(
+              icon: Icons.calendar_month,
+              title: 'Ingen kalendere endnu',
+              message:
+                  'Tilføj dine julekonkurrencer, så du nemt kan åbne dem hver dag.',
+              actionLabel: 'Tilføj din første',
+              onAction: _openEditor,
+            )
+          : Column(
               children: [
                 CalendarFilterBar(
                   selected: _filter,

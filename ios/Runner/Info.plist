@@ -45,5 +45,58 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+  		<string>com.mcdonalds.mobileapp</string>
+  		<string>dk.meny.meny</string>
+		<string>com.spardk.spar</string>
+		<string>com.SAS.SASApp</string>
+		<string>com.mirai.miraiex</string>
+		<string>com.loyaltyco.rewards</string>
+		<string>com.nordnet.Nordnet</string>
+		<string>com.aarstiderne.iphone</string>
+		<string>com.bestseller.veromoda.store</string>
+		<string>com.deutschebahn.navigator</string>
+		<string>com.einnovation.temu</string>
+		<string>com.healthfitnessnordic.gxbooking</string>
+		<string>com.hm.goe</string>
+		<string>com.illumapp.illum.key</string>
+		<string>com.vivino</string>
+		<string>com.lidl.eci.lidl.plus</string>
+		<string>com.loopfitness.loopapp</string>
+		<string>com.mk.sportmaster</string>
+		<string>com.only.onlystoresapp</string>
+		<string>com.quevita.bauhaus</string>
+		<string>com.saxo.bluefire</string>
+		<string>com.shapehq.fitnessworld</string>
+		<string>com.ingka.ikea.app</string>
+		<string>dk.burgerking.ordersapp</string>
+		<string>dk.apotekerforeningen.apoteket</string>
+		<string>dk.bilka.iphone</string>
+		<string>dk.clubmatas</string>
+		<string>dk.coop.dinbutik</string>
+		<string>dk.dsg.foetex</string>
+		<string>dk.dsg.netto</string>
+		<string>dk.sunsetboulevard.app</string>
+		<string>dk.iroots.rema1000</string>
+		<string>dk.minkobmand</string>
+		<string>dk.normal.normal</string>
+		<string>dk.shape.magasin.goodiecard</string>
+		<string>dk.lo-plus.medlemskort</string>
+		<string>com.justeat.JUSTEAT.dk</string>
+		<string>com.woltapp.wolt</string>
+		<string>nl.nemlig.Nemlig</string>
+		<string>com.ovdal.onskeskyen</string>
+		<string>se.posten.SparaForsandelse</string>
+		<string>dk.gls.glsapp</string>
+		<string>com.dao.tracking</string>
+		<string>com.danskebank.mobilepay</string>
+		<string>dk.retain.loyalitetskort</string>
+		<string>com.burbn.instagram</string>
+		<string>com.toyopagroup.picaboo</string>
+		<string>com.facebook.Facebook</string>
+		<string>com.zhiliaoapp.musically</string>
+		<string>com.facebook.Messenger</string>
+	</array>
 </dict>
 </plist>

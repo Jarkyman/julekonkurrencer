@@ -26,6 +26,7 @@ class AdventCalendarEntry {
     required this.updatedAt,
     this.sortOrder,
     this.doneToday = false,
+    this.iosStoreLink,
   });
 
   final String id;
@@ -35,6 +36,7 @@ class AdventCalendarEntry {
   final String? url;
   final String? appPackage;
   final String? iosBundleId;
+  final String? iosStoreLink;
   final String? location;
   final String? note;
   final bool isPredefined;
@@ -84,6 +86,7 @@ class AdventCalendarEntry {
     String? url,
     String? appPackage,
     String? iosBundleId,
+    String? iosStoreLink,
     String? location,
     String? note,
     bool? isPredefined,
@@ -101,6 +104,7 @@ class AdventCalendarEntry {
       url: url ?? this.url,
       appPackage: appPackage ?? this.appPackage,
       iosBundleId: iosBundleId ?? this.iosBundleId,
+      iosStoreLink: iosStoreLink ?? this.iosStoreLink,
       location: location ?? this.location,
       note: note ?? this.note,
       isPredefined: isPredefined ?? this.isPredefined,
@@ -121,6 +125,7 @@ class AdventCalendarEntry {
       'url': url,
       'appPackage': appPackage,
       'iosBundleId': iosBundleId,
+      'iosStoreLink': iosStoreLink,
       'location': location,
       'note': note,
       'isPredefined': isPredefined,
@@ -141,6 +146,7 @@ class AdventCalendarEntry {
       url: json['url'] as String?,
       appPackage: json['appPackage'] as String?,
       iosBundleId: json['iosBundleId'] as String?,
+      iosStoreLink: json['iosStoreLink'] as String?,
       location: json['location'] as String?,
       note: json['note'] as String?,
       isPredefined: json['isPredefined'] as bool? ?? false,

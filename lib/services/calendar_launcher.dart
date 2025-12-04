@@ -9,8 +9,9 @@ import '../models/advent_calendar_entry.dart';
 class CalendarLauncher {
   Future<void> openEntry(
     BuildContext context,
-    AdventCalendarEntry entry,
-    {required bool openMapsForPhysical}) async {
+    AdventCalendarEntry entry, {
+    required bool openMapsForPhysical,
+  }) async {
     switch (entry.type) {
       case CalendarType.website:
         await _openWebsite(context, entry);
@@ -84,17 +85,27 @@ class CalendarLauncher {
       final launched = await FlutterDeviceApps.openApp(entry.appPackage!);
       if (launched) return;
     }
+    if (Platform.isIOS && (entry.iosBundleId ?? '').isNotEmpty) {
+      final schemeUri = Uri.parse('${entry.iosBundleId}://');
+      final launched = await launchUrl(
+        schemeUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) return;
+    }
 
-    // Fallback 1: butik fra app/bundle id (kun Android -> Play Store; iOS åbner direkte link).
+    // Fallback 1: butik fra app/bundle id.
     String? storeLink;
     if (Platform.isAndroid && (entry.appPackage ?? '').isNotEmpty) {
       storeLink = _storeLinkFromPackage(
         appPackage: entry.appPackage,
         iosBundleId: null,
       );
+    } else if (Platform.isIOS && (entry.iosStoreLink ?? '').isNotEmpty) {
+      storeLink = _iosStoreLink(entry.iosStoreLink!);
     }
     final storeUri = _parseUrl(storeLink);
-    if (storeUri != null && Platform.isAndroid) {
+    if (storeUri != null) {
       final storeLaunched = await launchUrl(
         storeUri,
         mode: LaunchMode.externalApplication,
@@ -105,7 +116,7 @@ class CalendarLauncher {
     // Fallback 2: deep link / manuel url.
     final uri = _parseUrl(entry.url);
     if (uri == null) {
-      if (context.mounted) {
+      if (!Platform.isIOS && context.mounted) {
         _showSnack(context, 'Tilføj et link eller app-id for at åbne.');
       }
       return;
@@ -131,8 +142,12 @@ class CalendarLauncher {
     return null;
   }
 
-  Future<void> _handleEmail(
-  ) async {
+  String _iosStoreLink(String id) {
+    if (id.startsWith('https://')) return id;
+    return 'https://apps.apple.com/dk/app/$id';
+  }
+
+  Future<void> _handleEmail() async {
     if (Platform.isAndroid) {
       final intent = Uri.parse(
         'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end',
