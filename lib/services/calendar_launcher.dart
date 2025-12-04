@@ -85,13 +85,16 @@ class CalendarLauncher {
       if (launched) return;
     }
 
-    // Fallback 1: butik fra app/bundle id.
-    final storeLink = _storeLinkFromPackage(
-      appPackage: entry.appPackage,
-      iosBundleId: entry.iosBundleId,
-    );
+    // Fallback 1: butik fra app/bundle id (kun Android -> Play Store; iOS åbner direkte link).
+    String? storeLink;
+    if (Platform.isAndroid && (entry.appPackage ?? '').isNotEmpty) {
+      storeLink = _storeLinkFromPackage(
+        appPackage: entry.appPackage,
+        iosBundleId: null,
+      );
+    }
     final storeUri = _parseUrl(storeLink);
-    if (storeUri != null) {
+    if (storeUri != null && Platform.isAndroid) {
       final storeLaunched = await launchUrl(
         storeUri,
         mode: LaunchMode.externalApplication,
@@ -102,7 +105,9 @@ class CalendarLauncher {
     // Fallback 2: deep link / manuel url.
     final uri = _parseUrl(entry.url);
     if (uri == null) {
-      _showSnack(context, 'Tilføj et link eller app-id for at åbne.');
+      if (context.mounted) {
+        _showSnack(context, 'Tilføj et link eller app-id for at åbne.');
+      }
       return;
     }
 
@@ -150,39 +155,6 @@ class CalendarLauncher {
       return null;
     }
     return uri;
-  }
-
-  void _showInfoSheet(
-    BuildContext context, {
-    required String title,
-    required String message,
-  }) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 12),
-              Text(message),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Luk'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _showSnack(BuildContext context, String message) {

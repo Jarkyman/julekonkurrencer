@@ -1,0 +1,74 @@
+{
+  "fill" : {
+    "automatic-gradient" : "srgb:0.05490,0.60266,0.23922,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "ChatGPT Image Dec 2, 2025, 04_21_11 PM.png",
+          "name" : "ChatGPT Image Dec 2, 2025, 04_21_11 PM",
+          "position" : {
+            "scale" : 0.6,
+            "translation-in-points" : [
+              13.547105000763622,
+              110.2513757038273
+            ]
+          }
+        }
+      ],
+      "name" : "Hat",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "ChatGPT Image Dec 2, 2025, 04_26_18 PM.png",
+          "name" : "ChatGPT Image Dec 2, 2025, 04_26_18 PM",
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              -4.062707663384344,
+              -18.94662103803944
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "ChatGPT Image Dec 2, 2025, 04_18_31 PM.png",
+          "name" : "ChatGPT Image Dec 2, 2025, 04_18_31 PM",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -4,
+              9.5
+            ]
+          }
+        }
+      ],
+      "name" : "Calender",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

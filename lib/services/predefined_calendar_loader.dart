@@ -89,14 +89,6 @@ class PredefinedCalendarLoader {
     }
   }
 
-  Map<String, dynamic> _withLogoFallbackOld(Map<String, dynamic> json) {
-    final logo = json['logo'] ?? json['Logo'] ?? _faviconFromUrl(json['url']);
-    return {
-      ...json,
-      'logo': logo,
-    };
-  }
-
   String? _faviconFromUrl(String? url) {
     if (url == null) return null;
     final uri = Uri.tryParse(url);

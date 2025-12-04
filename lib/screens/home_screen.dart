@@ -85,9 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _openReminderSettings() async {
     final enabled = await _reminders.isEnabled();
-    final currentTime = await _reminders.currentReminderTime(
-      _defaultReminderTime,
-    );
+    final currentTime = _reminderTime;
 
     if (!mounted) return;
 
@@ -398,6 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (!mounted) return;
     final newOnes = await _manager.selectPredefined(
       context: context,
       predefined: available,
