@@ -305,7 +305,20 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       appBar: AppBar(
-        title: const Text('Mine kalendere'),
+        toolbarHeight: 80,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            const maxHeight = 80.0;
+            final dynamicHeight = (constraints.maxWidth * 0.9).clamp(
+              64.0,
+              maxHeight,
+            );
+            return Image.asset(
+              'assets/branding.png',
+              height: dynamicHeight,
+            );
+          },
+        ),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
