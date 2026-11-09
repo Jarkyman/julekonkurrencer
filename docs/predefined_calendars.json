@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-09T00:00:00+01:00",
+  "updatedAt": "2026-11-09T20:57:35+01:00",
+  "calendars": [
+    {
+      "id": "bogide_julekalender_2026",
+      "name": "Bog & idé",
+      "kind": "website",
+      "url": "https://spil.bog-ide.dk/julekalender",
+      "note": "Åbn en låge hver dag fra 1. til 24. december. Kundeklubben udlodder gavekort på 500 kr. dagligt og 5.000 kr. i hovedpræmie."
+    },
+    {
+      "id": "det_ny_teater_julekalender_2026",
+      "name": "Det Ny Teater",
+      "kind": "website",
+      "url": "https://detnyteater2026.julekalender.dk/",
+      "note": "Teaterhistorier og en daglig quiz fra 1. til 24. december. Der trækkes lod om et gavekort på 500 kr. hver dag."
+    },
+    {
+      "id": "dk_camp_adventskalender_2026",
+      "name": "DK-CAMP",
+      "kind": "website",
+      "url": "https://www.dk-camp.dk/tilmeld-dig-nyhedsmail/adventskalender-2026/",
+      "note": "Tilmeld dig adventskalenderen og få chancen for at vinde en ny campingpræmie hver adventsuge."
+    },
+    {
+      "id": "faglige_seniorer_julekalender_2026",
+      "name": "Faglige Seniorer",
+      "kind": "website",
+      "url": "https://fagligsenior.dk/julekalender-2026/",
+      "note": "Tilmeld dig Brian og Susannes julekalender med daglig quiz og designgaver fra 1. december."
+    },
+    {
+      "id": "holmen_dirt_julekalender_2026",
+      "name": "Holmen Dirt",
+      "kind": "website",
+      "url": "https://holmendirt.dk/nyheder/julekalender-2026/",
+      "note": "Svar på spørgsmål og spil små spil om Holmen Dirt og Christianshavn fra 1. til 24. december."
+    },
+    {
+      "id": "landbrugslotteriet_julekalender_2026",
+      "name": "Landbrugslotteriet",
+      "kind": "website",
+      "url": "https://www.landbrugslotteriet.dk/konkurrencer/",
+      "note": "Tilmeld dig julekalenderen og stem på dit yndlingsjuleslik. Der er præmier hver dag i december."
+    },
+    {
+      "id": "legekaeden_julekalender_2026",
+      "name": "Legekæden",
+      "kind": "website",
+      "url": "https://spil.legekaeden.dk/julekalender",
+      "note": "Åbn en låge hver dag fra 1. til 24. december. Kundeklubben udlodder gavekort på 500 kr. dagligt og 5.000 kr. i hovedpræmie."
+    },
+    {
+      "id": "pension_for_alle_julekalender_2026",
+      "name": "Pension for alle",
+      "kind": "website",
+      "url": "https://jul.pensionforalle.dk/",
+      "note": "Få dagens quiz på mail fra 1. til 24. december. Der er gavekort på 300 kr. dagligt og 3.000 kr. i hovedpræmie."
+    },
+    {
+      "id": "visit_aarhus_julekalender_2026",
+      "name": "VisitAarhus",
+      "kind": "website",
+      "url": "https://julekalender.visitaarhus.dk/",
+      "note": "Deltag fra 1. til 24. december og vind oplevelser og ophold i Aarhusregionen."
+    }
+  ]
+}
