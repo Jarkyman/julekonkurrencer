@@ -1,8 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_device_apps/flutter_device_apps.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/advent_calendar_entry.dart';
 import '../services/analytics_service.dart';
@@ -32,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _reminders = ReminderService();
   final _doneToday = DoneTodayService();
   late final HomeManager _manager;
+  late final Future<void> _reminderInitialization;
   bool _manualOrder = false;
   bool _openMapsEnabled = true;
   List<AdventCalendarEntry> _entries = [];
@@ -51,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     _loadEntries();
     _loadOpenSettings();
-    _initReminders();
+    _reminderInitialization = _initReminders();
   }
 
   Future<void> _loadOpenSettings() async {
@@ -81,13 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initReminders() async {
-    await _reminders.init();
-    final seenOnboarding = await _storage.hasSeenOnboarding();
-    if (!seenOnboarding) return;
     _reminderTime = await _reminders.currentReminderTime(_defaultReminderTime);
+    try {
+      await _reminders.restoreSchedule();
+    } catch (error) {
+      debugPrint('Could not restore reminders: $error');
+    }
   }
 
   Future<void> _openReminderSettings() async {
+    await _reminderInitialization;
     final enabled = await _reminders.isEnabled();
     final currentTime = _reminderTime;
 
@@ -101,7 +101,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result == null) return;
 
-    if (result.enabled) {
+    try {
+      await _saveReminderSettings(result.enabled, result.time);
+    } catch (error) {
+      debugPrint('Could not save reminder settings: $error');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kunne ikke gemme påmindelser. Prøv igen.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _saveReminderSettings(bool enabled, TimeOfDay time) async {
+    if (enabled) {
       final granted = await _reminders.requestPermission();
       if (!granted) {
         if (mounted) {
@@ -115,9 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         return;
       }
-      await _reminders.enableDailyReminders(result.time);
+      await _reminders.enableDailyReminders(time);
+      if (!mounted) return;
       setState(() {
-        _reminderTime = result.time;
+        _reminderTime = time;
       });
     } else {
       await _reminders.disableReminders();

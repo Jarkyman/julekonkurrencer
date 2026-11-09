@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -10,15 +11,18 @@ class ReminderService {
   ReminderService() : _plugin = FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
+  Future<void>? _initialization;
   static const _channelId = 'daily_reminder';
   static const _channelName = 'Daily reminder';
   static const _enabledKey = 'reminders_enabled';
   static const _promptSeenKey = 'reminders_prompt_seen';
   static const _timeHourKey = 'reminders_hour';
   static const _timeMinuteKey = 'reminders_minute';
+  static const _scheduledTimeZoneKey = 'reminders_scheduled_time_zone';
 
-  /// Initialize local notifications and timezone data.
-  Future<void> init() async {
+  Future<void> init() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
     await _configureLocalTimeZone();
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -29,7 +33,16 @@ class ReminderService {
     );
     const settings = InitializationSettings(android: android, iOS: ios);
 
-    await _plugin.initialize(settings);
+    await _plugin.initialize(settings: settings);
+  }
+
+  Future<void> restoreSchedule() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_enabledKey) != true) return;
+    await init();
+    if (prefs.getString(_scheduledTimeZoneKey) == tz.local.name) return;
+    final time = await currentReminderTime(const TimeOfDay(hour: 9, minute: 0));
+    await enableDailyReminders(time);
   }
 
   Future<bool> shouldShowOnboarding() async {
@@ -49,20 +62,29 @@ class ReminderService {
 
   /// Ask for notification permission (iOS + Android 13+).
   Future<bool> requestPermission() async {
-    final iosImpl =
-        _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-    final macImpl =
-        _plugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
-    final androidImpl =
-        _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await init();
+    final iosImpl = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    final macImpl = _plugin
+        .resolvePlatformSpecificImplementation<
+          MacOSFlutterLocalNotificationsPlugin
+        >();
+    final androidImpl = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
-    final iosGranted = await iosImpl?.requestPermissions(
+    final iosGranted =
+        await iosImpl?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         ) ??
         true;
-    final macGranted = await macImpl?.requestPermissions(
+    final macGranted =
+        await macImpl?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
@@ -80,27 +102,29 @@ class ReminderService {
   }
 
   Future<void> enableDailyReminders(TimeOfDay time) async {
+    await init();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_enabledKey, true);
-    await prefs.setInt(_timeHourKey, time.hour);
-    await prefs.setInt(_timeMinuteKey, time.minute);
+    await prefs.remove(_scheduledTimeZoneKey);
     try {
       await _scheduleDecemberReminders(time);
-    } on PlatformException catch (e) {
-      if (e.code == 'exact_alarms_not_permitted') {
-        // Gracefully ignore if exact alarms are not allowed; caller can surface a toast.
-        return;
-      }
+    } catch (_) {
+      await _clearReminders();
       rethrow;
     }
+    await prefs.setInt(_timeHourKey, time.hour);
+    await prefs.setInt(_timeMinuteKey, time.minute);
+    await prefs.setBool(_enabledKey, true);
+    await prefs.setString(_scheduledTimeZoneKey, tz.local.name);
   }
 
   Future<void> disableReminders() async {
+    await init();
+    await _clearReminders();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_enabledKey, false);
     await prefs.remove(_timeHourKey);
     await prefs.remove(_timeMinuteKey);
-    await clearReminders();
+    await prefs.remove(_scheduledTimeZoneKey);
   }
 
   Future<TimeOfDay> currentReminderTime(TimeOfDay fallback) async {
@@ -111,19 +135,15 @@ class ReminderService {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
-  Future<void> clearReminders() async {
+  Future<void> _clearReminders() async {
     // IDs 4001-4031 reserved for December reminders.
     for (var id = 4001; id <= 4031; id++) {
-      await _plugin.cancel(id);
+      await _plugin.cancel(id: id);
     }
   }
 
   Future<void> _scheduleDecemberReminders(TimeOfDay time) async {
-    await clearReminders();
-
     final now = tz.TZDateTime.now(tz.local);
-    final targetYear = now.month == 12 ? now.year : now.year;
-    final firstDay = now.month == 12 ? now.day : 1;
 
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -136,27 +156,34 @@ class ReminderService {
       iOS: const DarwinNotificationDetails(),
     );
 
-    for (var day = firstDay; day <= 31; day++) {
-      final scheduled = tz.TZDateTime(
+    for (var day = 1; day <= 31; day++) {
+      var scheduled = tz.TZDateTime(
         tz.local,
-        targetYear,
+        now.year,
         12,
         day,
         time.hour,
         time.minute,
       );
 
-      if (scheduled.isBefore(now)) {
-        continue;
+      if (!scheduled.isAfter(now)) {
+        scheduled = tz.TZDateTime(
+          tz.local,
+          now.year + 1,
+          12,
+          day,
+          time.hour,
+          time.minute,
+        );
       }
 
       await _plugin.zonedSchedule(
-        4000 + day,
-        'Husk dine julekalendere',
-        'Åbn appen og deltag i dagens konkurrencer.',
-        scheduled,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        id: 4000 + day,
+        title: 'Husk dine julekalendere',
+        body: 'Åbn appen og deltag i dagens konkurrencer.',
+        scheduledDate: scheduled,
+        notificationDetails: details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.dateAndTime,
       );
     }
@@ -164,14 +191,15 @@ class ReminderService {
 
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation(_localTimeZoneName()));
-  }
-
-  String _localTimeZoneName() {
-    final name = DateTime.now().timeZoneName.toLowerCase();
-    if (name.contains('cet') || name.contains('cest')) {
-      return 'Europe/Copenhagen';
+    var location = tz.getLocation('Europe/Copenhagen');
+    try {
+      final timezone = await FlutterTimezone.getLocalTimezone();
+      location = tz.timeZoneDatabase.locations[timezone.identifier] ?? location;
+    } on PlatformException {
+      // Use the default Danish timezone if the device lookup fails.
+    } on MissingPluginException {
+      // Native plugins are unavailable in widget tests.
     }
-    return 'UTC';
+    tz.setLocalLocation(location);
   }
 }

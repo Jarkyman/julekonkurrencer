@@ -116,11 +116,9 @@ class _CalendarSectionedList extends StatelessWidget {
       buildDefaultDragHandles: false,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
       itemCount: flattened.length,
-      onReorder: (oldIndex, newIndex) {
+      onReorderItem: (oldIndex, newIndex) {
         final from = flattened[oldIndex];
         if (from.isHeader || from.entry!.doneToday) return;
-
-        if (oldIndex < newIndex) newIndex -= 1;
 
         final movingFavorite = from.entry!.isFavorite;
 

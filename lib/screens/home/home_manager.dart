@@ -248,7 +248,7 @@ class HomeManager {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
-                  'Kunne ikke planlægge påmindelser (mangler rettigheder til præcise alarmer).',
+                  'Kunne ikke planlægge påmindelser. Prøv igen under Indstillinger.',
                 ),
               ),
             );

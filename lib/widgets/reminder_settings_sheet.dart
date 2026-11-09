@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ReminderSettingsResult {
@@ -73,6 +74,11 @@ Future<ReminderSettingsResult?> showReminderSettingsSheet({
                     ),
                   ),
                 ),
+                if (localEnabled &&
+                    defaultTargetPlatform == TargetPlatform.android)
+                  const Text(
+                    'Android kan levere påmindelsen lidt efter det valgte tidspunkt.',
+                  ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,

@@ -246,7 +246,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                   width: 48,
                   height: 48,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _appPlaceholder(),
+                  errorBuilder: (_, _, _) => _appPlaceholder(),
                 ),
               )
             else
@@ -463,7 +463,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                                             width: 32,
                                             height: 32,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
+                                            errorBuilder: (_, _, _) =>
                                                 const SizedBox.shrink(),
                                           ),
                                         ),
@@ -474,7 +474,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                                   onTap: () => Navigator.of(context).pop(app),
                                 );
                               },
-                              separatorBuilder: (_, __) =>
+                              separatorBuilder: (_, _) =>
                                   const Divider(height: 1),
                               itemCount: results.length,
                             ),
@@ -558,14 +558,3 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     }
   }
 }
-  Widget _appPlaceholder() {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: const Icon(Icons.apps, color: Colors.grey),
-    );
-  }

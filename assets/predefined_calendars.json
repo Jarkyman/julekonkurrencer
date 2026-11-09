@@ -1,268 +1,70 @@
 {
   "version": 1,
-  "generatedAt": "2025-12-01T16:30:00Z",
-  "updatedAt": "2025-12-03T16:30:00Z",
+  "generatedAt": "2026-11-09T00:00:00+01:00",
+  "updatedAt": "2026-11-09T00:00:00+01:00",
   "calendars": [
     {
-      "id": "mcdonalds_julekalender_app",
-      "name": "McDonald’s",
-      "kind": "app",
-      "url": "https://www.mcdonalds.com/dk/da-dk/download-app.html",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.mcdonalds.com",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "androidPackage": "com.mcdonalds.mobileapp",
-      "iosBundleId": "com.mcdonalds.mobileapp",
-      "iosStorLink": "id1217507712",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Julekalenderkampagne i McDonald’s-appen med daglige tilbud. Gå ind og åben dagens låge"
-    },
-    {
-      "id": "onskeskyen_julekalender",
-      "name": "Ønskeskyen",
-      "kind": "App",
-      "url": "https://onskeskyen.dk/",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://onskeskyen.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "com.ovdal.onskeskyen",
-      "androidPackage": "com.mcdonalds.mobileapp",
-      "iosBundleId": "com.ovdal.onskeskyen",
-      "iosStorLink": "id973421404",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Online julekalender for brugere af Ønskeskyen med konkurrencer og præmier."
-    },
-    {
-      "id": "meny_app_julekalender",
-      "name": "Meny",
-      "kind": "app",
-      "url": "https://meny.dk/julekalender",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://meny.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "androidPackage": "dk.meny",
-      "iosBundleId": "dk.meny.meny",
-      "iosStorLink": "id993170508",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer",
-        "Postnummer",
-        "Betalingskort"
-      ],
-      "note": "Spil ‘spin og vind’ julekalender i Meny-appen fra 1.–24. december med daglige præmier. Kræver oprettet MENY-app-bruger med tilknyttet betalingskort."
-    },
-    {
-      "id": "sport24_julekalender",
-      "name": "SPORT 24",
-      "kind": "website",
-      "url": "https://www.sport24.dk/julekalender/",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.sport24.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "E-mail"
-      ],
-      "note": "Åbn dagens låge og svar rigtigt på spørgsmålet, så deltager du i konkurrancen om dagens præmie"
-    },
-    {
-      "id": "volkswagen_julekalender_2025",
-      "name": "Volkswagen",
-      "kind": "website",
-      "url": "https://jul.kampagne.volkswagen.dk/",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://volkswagen.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Volkswagens online julekalenderkampagne med daglige konkurrencer og præmier relateret til biler og oplevelser."
-    },
-    {
-      "id": "bmw_julekalender_2025",
-      "name": "BMW",
-      "kind": "website",
-      "url": "https://www.bmw.dk/da/topics/discover/bmw-julekalender.html",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.bmw.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "BMW’s julekalender med daglige konkurrencer og præmier for bilentusiaster."
-    },
-    {
-      "id": "xlbyg_julekalender",
-      "name": "XL-BYG",
-      "kind": "website",
-      "url": "https://www.xl-byg.dk/artikel/julekalender",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.xl-byg.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Postnummer"
-      ],
-      "note": "Online julekalender fra XL-BYG med daglige præmier og spørgsmål om gør-det-selv og byggematerialer."
-    },
-    {
-      "id": "bogide_julekalender_2025",
+      "id": "bogide_julekalender_2026",
       "name": "Bog & idé",
       "kind": "website",
-      "url": "https://spil.bog-ide.dk/julekalender/Start",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.bog-ide.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Spilbaseret julekalender fra Bog & idé med bog- og gavepræmier bag hver låge."
+      "url": "https://spil.bog-ide.dk/julekalender",
+      "note": "Åbn en låge hver dag fra 1. til 24. december. Kundeklubben udlodder gavekort på 500 kr. dagligt og 5.000 kr. i hovedpræmie."
     },
     {
-      "id": "blind_julekalender_2025",
-      "name": "Blindes Jul",
+      "id": "det_ny_teater_julekalender_2026",
+      "name": "Det Ny Teater",
       "kind": "website",
-      "url": "https://jul.blind.dk/Start",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://blind.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "lotteri_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Lodnummer",
-        "Navn"
-      ],
-      "note": "Julekalender fra Dansk Blindesamfund, hvor man deltager med et købt lodnummer og kan tjekke dagens vindere online."
+      "url": "https://detnyteater2026.julekalender.dk/",
+      "note": "Teaterhistorier og en daglig quiz fra 1. til 24. december. Der trækkes lod om et gavekort på 500 kr. hver dag."
     },
     {
-      "id": "nemlig_julekalender_2025",
-      "name": "nemlig.com",
+      "id": "dk_camp_adventskalender_2026",
+      "name": "DK-CAMP",
       "kind": "website",
-      "url": "https://nemlig.campaign.scratcher.io/kalender-2025",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.nemlig.com",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Online julekalender fra nemlig.com med daglige konkurrencer og præmier til dagligvarekunder."
+      "url": "https://www.dk-camp.dk/tilmeld-dig-nyhedsmail/adventskalender-2026/",
+      "note": "Tilmeld dig adventskalenderen og få chancen for at vinde en ny campingpræmie hver adventsuge."
     },
     {
-      "id": "landbrugslotteriet_julekalender_2025",
+      "id": "faglige_seniorer_julekalender_2026",
+      "name": "Faglige Seniorer",
+      "kind": "website",
+      "url": "https://fagligsenior.dk/julekalender-2026/",
+      "note": "Tilmeld dig Brian og Susannes julekalender med daglig quiz og designgaver fra 1. december."
+    },
+    {
+      "id": "holmen_dirt_julekalender_2026",
+      "name": "Holmen Dirt",
+      "kind": "website",
+      "url": "https://holmendirt.dk/nyheder/julekalender-2026/",
+      "note": "Svar på spørgsmål og spil små spil om Holmen Dirt og Christianshavn fra 1. til 24. december."
+    },
+    {
+      "id": "landbrugslotteriet_julekalender_2026",
       "name": "Landbrugslotteriet",
       "kind": "website",
-      "url": "https://konkurrencer.landbrugslotteriet.dk/julekalender2025/",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://landbrugslotteriet.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "lotteri_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Lodnummer",
-        "Navn"
-      ],
-      "note": "Julekalender tilknyttet Landbrugslotteriet, hvor man deltager via lodder og kan tjekke gevinster dagligt i december."
+      "url": "https://www.landbrugslotteriet.dk/konkurrencer/",
+      "note": "Tilmeld dig julekalenderen og stem på dit yndlingsjuleslik. Der er præmier hver dag i december."
     },
     {
-      "id": "feriepartner_julekalender_2025",
-      "name": "Feriepartner",
+      "id": "legekaeden_julekalender_2026",
+      "name": "Legekæden",
       "kind": "website",
-      "url": "https://feriepartner-danmark.campaign.playable.com/dk-julekalender-2025",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.feriepartner.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Online julekalender fra Feriepartner med konkurrencer om ferieophold og relaterede præmier."
+      "url": "https://spil.legekaeden.dk/julekalender",
+      "note": "Åbn en låge hver dag fra 1. til 24. december. Kundeklubben udlodder gavekort på 500 kr. dagligt og 5.000 kr. i hovedpræmie."
     },
     {
-      "id": "kristeligt_dagblad_julekalender_2025",
-      "name": "Kristeligt Dagblad",
+      "id": "pension_for_alle_julekalender_2026",
+      "name": "Pension for alle",
       "kind": "website",
-      "url": "https://www.kristeligt-dagblad.dk/julekalender-deltag",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.kristeligt-dagblad.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Avisens julekalender med daglige spørgsmål eller refleksioner og mulighed for at vinde præmier."
+      "url": "https://jul.pensionforalle.dk/",
+      "note": "Få dagens quiz på mail fra 1. til 24. december. Der er gavekort på 300 kr. dagligt og 3.000 kr. i hovedpræmie."
     },
     {
-      "id": "wwf_julemission_2025",
-      "name": "WWF",
+      "id": "visit_aarhus_julekalender_2026",
+      "name": "VisitAarhus",
       "kind": "website",
-      "url": "https://wwf-denmark.campaign.scratcher.io/christmas-2025",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.wwf.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail"
-      ],
-      "note": "WWF’s julekalender med daglige skrab og vind, til fordel for natur og dyr."
-    },
-    {
-      "id": "vitaepro_julekalender_2025",
-      "name": "VitaePro Julekalender 2025",
-      "kind": "website",
-      "url": "https://game.vitaepro.dk/jul25-smr",
-      "logo": "https://www.google.com/s2/favicons?sz=128&domain_url=https://www.vitaepro.dk",
-      "country": "DK",
-      "language": "da",
-      "category": "online_julekalender",
-      "affiliateLink": "",
-      "typicalFields": [
-        "Navn",
-        "E-mail",
-        "Telefonnummer"
-      ],
-      "note": "Spilbaseret julekalender fra VitaePro med daglige præmier og fokus på sundhed."
+      "url": "https://julekalender.visitaarhus.dk/",
+      "note": "Deltag fra 1. til 24. december og vind oplevelser og ophold i Aarhusregionen."
     }
   ]
 }

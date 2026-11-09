@@ -6,49 +6,65 @@ import 'package:http/http.dart' as http;
 import '../models/advent_calendar_entry.dart';
 
 class PredefinedCalendarLoader {
+  PredefinedCalendarLoader({http.Client? client})
+    : _get = client?.get ?? http.get;
+
+  final Future<http.Response> Function(Uri) _get;
   static const _assetPath = 'assets/predefined_calendars.json';
   static const _gistUrl =
       'https://gist.githubusercontent.com/Jarkyman/6bdd0d0b99f06e8f8878b4309a181e82/raw/predefined_calendars.json';
 
   Future<List<AdventCalendarEntry>> load() async {
-    final fromGist = await _tryLoadFromGist();
-    if (fromGist.isNotEmpty) {
-      return fromGist;
+    final remoteLoad = _tryLoadFromGist();
+    final bundled = await _loadFromAssets();
+    final remote = await remoteLoad;
+    final bundledDate = bundled?.updatedAt;
+    final remoteDate = remote?.updatedAt;
+    if (remote != null &&
+        (bundledDate == null ||
+            (remoteDate != null && !remoteDate.isBefore(bundledDate)))) {
+      return remote.entries;
     }
-    return _loadFromAssets();
+    return bundled?.entries ?? [];
   }
 
-  Future<List<AdventCalendarEntry>> _tryLoadFromGist() async {
+  Future<_CalendarFeed?> _tryLoadFromGist() async {
     try {
-      final response = await http
-          .get(Uri.parse(_gistUrl))
-          .timeout(const Duration(seconds: 5));
-      if (response.statusCode != 200) return [];
-      return _parseEntries(response.body);
+      final uri = Uri.parse(_gistUrl);
+      final response = await _get(uri).timeout(const Duration(seconds: 5));
+      if (response.statusCode != 200) return null;
+      return _parseFeed(utf8.decode(response.bodyBytes));
     } catch (_) {
-      return [];
+      return null;
     }
   }
 
-  Future<List<AdventCalendarEntry>> _loadFromAssets() async {
+  Future<_CalendarFeed?> _loadFromAssets() async {
     try {
       final content = await rootBundle.loadString(_assetPath);
-      return _parseEntries(content);
+      return _parseFeed(content);
     } catch (_) {
-      return [];
+      return null;
     }
   }
 
-  List<AdventCalendarEntry> _parseEntries(String content) {
+  _CalendarFeed? _parseFeed(String content) {
     final decoded = jsonDecode(content) as Map<String, dynamic>;
-    final calendars = (decoded['calendars'] as List<dynamic>?) ??
+    final calendars =
+        (decoded['calendars'] as List<dynamic>?) ??
         (decoded['entries'] as List<dynamic>?) ??
         <dynamic>[];
 
-    return calendars
+    final entries = calendars
         .map((item) => _toEntry(item as Map<String, dynamic>))
         .whereType<AdventCalendarEntry>()
         .toList(growable: false);
+    if (entries.isEmpty) return null;
+    final updatedAt = decoded['updatedAt'] ?? decoded['generatedAt'];
+    return (
+      entries: entries,
+      updatedAt: updatedAt is String ? DateTime.tryParse(updatedAt) : null,
+    );
   }
 
   AdventCalendarEntry? _toEntry(Map<String, dynamic> json) {
@@ -98,3 +114,8 @@ class PredefinedCalendarLoader {
     return 'https://www.google.com/s2/favicons?domain=$host&sz=128';
   }
 }
+
+typedef _CalendarFeed = ({
+  List<AdventCalendarEntry> entries,
+  DateTime? updatedAt,
+});
